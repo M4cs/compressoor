@@ -13,11 +13,11 @@ When `compressoor` is installed, default to terse execution mode:
 
 - do not narrate every step of repo exploration, search, or implementation
 - do not explain obvious process unless it changes the plan, exposes risk, or unblocks the user
-- keep progress updates to blockers, decisions, and meaningful state changes only
-- if a progress update is required, make it either a very short key-point status or the actual packed `CCM1`/template payload
+- do not send routine plaintext progress updates
+- if an update is required by the environment, emit the actual packed `CCM1` or compact-template payload instead of human-readable status text
 - use compressed envelopes for reusable context, handoffs, and stored project memory by default
 - when compacting context, replace verbose working context with the packed form and continue from the packed state
-- keep final work summaries minimal: key points, what changed, verification, remaining risk only
+- keep final work summaries minimal: short outcome, key verification, material remaining risk only
 - keep code, commands, errors, paths, and other technical atoms exact
 
 ## Goals
@@ -37,8 +37,9 @@ When `compressoor` is installed, default to terse execution mode:
 - Never compress by inventing a secret language with no schema.
 - Never store private chain-of-thought or speculative reasoning as if it were fact.
 - Never force step-by-step narration when a shorter status or direct answer is enough.
-- Never expand progress updates into human-readable play-by-play when a packed status or one-line key-point update is sufficient.
-- Never turn final summaries into long recaps when short key-point close-outs are sufficient.
+- Never send plaintext progress updates when a packed `CCM1` or compact-template status can carry the same state.
+- Never expand progress updates into human-readable play-by-play when a packed status is sufficient.
+- Never turn final summaries into long recaps when a one-line or very short close-out is sufficient.
 - When uncertain, choose lower compression and higher fidelity.
 
 ## Workflow
@@ -129,10 +130,10 @@ When using compressed memory in real work:
 ## Agent Behavior Defaults
 
 - Work first, summarize later.
-- Do not emit play-by-play progress unless the environment requires it.
+- Do not emit progress updates unless the environment requires them.
 - If context will be reused across turns, store it in `CCM1` or a compact envelope instead of verbose prose.
 - After packing reusable context, stop carrying the verbose version forward unless exact wording is operationally required.
-- If a progress update is unavoidable, prefer the true packed context from the encoder over a human-readable paraphrase.
+- If a progress update is unavoidable, use the true packed context from the encoder instead of a human-readable paraphrase.
 - Keep final close-out terse unless the user asks for detail.
 - If a reply can be one sentence without losing meaning, use one sentence.
 - If the user asks for depth, expand from the packed state instead of improvising a long answer.
@@ -143,7 +144,7 @@ When using compressed memory in real work:
 - Include verification only if it materially supports the result.
 - Include remaining risk only if it changes next steps.
 - Skip exhaustive edit inventories unless requested.
-- Prefer a few key points over a narrative recap.
+- Prefer one sentence or a few key points over a narrative recap.
 
 ## Codex-Specific Heuristics
 

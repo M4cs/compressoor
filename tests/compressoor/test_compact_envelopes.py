@@ -36,7 +36,9 @@ class EnvelopeTests(unittest.TestCase):
     def test_skill_defaults_require_terse_execution_mode(self) -> None:
         skill = (ROOT / "skills" / "compressoor" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("do not narrate every step", skill)
+        self.assertIn("do not send routine plaintext progress updates", skill)
         self.assertIn("store it in `CCM1` or a compact envelope", skill)
         self.assertIn("discard the verbose source and retain the packed state", skill)
-        self.assertIn("true packed context from the encoder", skill)
-        self.assertIn("keep final work summaries minimal", skill)
+        self.assertIn("true packed context from the encoder instead of a human-readable paraphrase", skill)
+        self.assertIn("keep final work summaries minimal: short outcome, key verification, material remaining risk only", skill)
+        self.assertIn("Never send plaintext progress updates", skill)

@@ -17,6 +17,7 @@ class PluginDefaultsTests(unittest.TestCase):
         prompt = prompts[0]
         self.assertIn("Use $compressoor by default", prompt)
         self.assertIn("avoid narrating each step", prompt)
-        self.assertIn("progress updates are required make them extremely minimal key points or the true packed CCM1/template context", prompt)
+        self.assertIn("Do not send routine plaintext progress updates", prompt)
+        self.assertIn("emit the true packed CCM1/template context instead of human-readable status text", prompt)
         self.assertIn("replace the verbose form with CCM1 or compact envelopes as the new active context by default", prompt)
-        self.assertIn("Keep final summaries minimal too", prompt)
+        self.assertIn("Keep final summaries extremely terse", prompt)
