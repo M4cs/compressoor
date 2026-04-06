@@ -1,0 +1,27 @@
+{
+  "name": "compressoor",
+  "version": "0.1.0",
+  "description": "Aggressive low-loss context compression with corpus-driven validation for Codex.",
+  "author": {
+    "name": "Max",
+    "url": "https://github.com/max/compressoor"
+  },
+  "homepage": "https://github.com/max/compressoor",
+  "repository": "https://github.com/max/compressoor",
+  "license": "MIT",
+  "keywords": ["productivity", "compression", "context", "memory", "writing"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Compressoor",
+    "shortDescription": "Default execution-first context compression across projects.",
+    "longDescription": "Aggressive low-loss context compression for Codex working state. When installed, Compressoor should be used by default across projects to keep context compact, preserve technical atoms, bias toward doing first, and defer explanation until the end.",
+    "developerName": "Max",
+    "category": "Productivity",
+    "capabilities": ["Write"],
+    "websiteURL": "https://github.com/max/compressoor",
+    "defaultPrompt": [
+      "Use $compressoor by default across projects to keep working context compact, preserve technical atoms exactly, act before explaining, avoid narrating each step unless needed, and when progress updates are required make them extremely minimal key points or the true packed CCM1/template context. When compacting reusable context, replace the verbose form with CCM1 or compact envelopes as the new active context by default. Keep final summaries minimal too: key points, what changed, verification, and only material remaining risk."
+    ],
+    "brandColor": "#14532D"
+  }
+}

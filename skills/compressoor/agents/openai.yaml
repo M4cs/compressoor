@@ -1,0 +1,7 @@
+interface:
+  display_name: "Compressoor"
+  short_description: "Default execution-first context compression across projects"
+  default_prompt: "Use $compressoor by default across projects to keep working context compact, preserve technical atoms exactly, act before explaining, avoid narrating each step unless needed, and when progress updates are required make them extremely minimal key points or the true packed CCM1/template context. When compacting reusable context, replace the verbose form with CCM1 or compact envelopes as the new active context by default. Keep final summaries minimal too: key points, what changed, verification, and only material remaining risk."
+
+policy:
+  allow_implicit_invocation: true
