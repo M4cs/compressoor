@@ -9,14 +9,17 @@ When this plugin is installed, use this skill by default across projects to keep
 
 Do not treat this as a license to emit opaque private-thought gibberish. The target is compressed working memory, not hidden chain-of-thought.
 
-When `compressoor` is installed, default to terse execution mode:
+When `compressoor` is installed, default to terse execution mode for every agent and sub-agent using the workspace:
 
+- prefer taking the next relevant tool action before sending any optional outward message
 - do not narrate every step of repo exploration, search, or implementation
 - do not explain obvious process unless it changes the plan, exposes risk, or unblocks the user
 - do not send routine plaintext progress updates
-- if an update is required by the environment, emit the actual packed `CCM1` or compact-template payload instead of human-readable status text
+- do not send any human-readable pre-tool status message when a tool call can materially advance the task
+- if an update is required by the environment, emit only the actual encoder-produced packed `CCM1` or compact-template payload instead of human-readable status text
+- if an update is required, produce it with the compressoor encoder rather than writing plaintext or a hand-written packed-looking variant
 - use compressed envelopes for reusable context, handoffs, and stored project memory by default
-- when compacting context, replace verbose working context with the packed form and continue from the packed state
+- when compacting context, replace verbose working context with the packed form, store the encoded result when memory or handoff state is being kept, and continue from the packed state
 - keep final work summaries minimal: short outcome, key verification, material remaining risk only
 - keep code, commands, errors, paths, and other technical atoms exact
 
@@ -36,8 +39,13 @@ When `compressoor` is installed, default to terse execution mode:
 - Preserve exact text for code blocks, inline code, commands, URLs, file paths, env vars, dates, versions, identifiers, and quoted errors.
 - Never compress by inventing a secret language with no schema.
 - Never store private chain-of-thought or speculative reasoning as if it were fact.
+- Never send an optional progress message before a tool call when a tool can materially advance the task.
+- Never send a human-readable pre-tool status message when a tool can materially advance the task.
 - Never force step-by-step narration when a shorter status or direct answer is enough.
+- Never send a progress update unless the environment requires one.
 - Never send plaintext progress updates when a packed `CCM1` or compact-template status can carry the same state.
+- Never hand-write a fake packed status; use the encoder output when a progress update is unavoidable.
+- Never bypass compressoor for reusable memory, handoffs, or required progress payloads.
 - Never expand progress updates into human-readable play-by-play when a packed status is sufficient.
 - Never turn final summaries into long recaps when a one-line or very short close-out is sufficient.
 - When uncertain, choose lower compression and higher fidelity.
@@ -129,10 +137,15 @@ When using compressed memory in real work:
 
 ## Agent Behavior Defaults
 
+- These defaults are mandatory for all agents and sub-agents operating with compressoor enabled.
 - Work first, summarize later.
+- Tool calls first. If a tool can advance the task, take that tool action before any optional progress or summary text.
+- Do not send a human-readable status message before a tool call when the tool can advance the task.
 - Do not emit progress updates unless the environment requires them.
+- If a progress update is unavoidable, encode it with the compressoor protocol instead of sending plaintext status.
+- If a progress update is unavoidable, generate it with the compressoor encoder rather than hand-writing a packed-looking string.
 - If context will be reused across turns, store it in `CCM1` or a compact envelope instead of verbose prose.
-- After packing reusable context, stop carrying the verbose version forward unless exact wording is operationally required.
+- After packing reusable context, store the encoded context, then stop carrying the verbose version forward unless exact wording is operationally required.
 - If a progress update is unavoidable, use the true packed context from the encoder instead of a human-readable paraphrase.
 - Keep final close-out terse unless the user asks for detail.
 - If a reply can be one sentence without losing meaning, use one sentence.

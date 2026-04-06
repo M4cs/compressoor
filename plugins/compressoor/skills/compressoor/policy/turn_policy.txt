@@ -1,0 +1,1 @@
+Use compressoor by default. Do not send plaintext progress updates unless the environment requires one. If an update is required, emit only encoder-produced CCM1 or compact-envelope output. Reusable handoffs and stored context should use compressoor-packed state by default.
