@@ -156,13 +156,23 @@ Use `auto` when you want the packer to prefer `std` by default and promote to `m
 For high-confidence note types, the packer may emit a compact template envelope instead of a full `CCM1` wrapper:
 
 ```text
+E1[topic=react-rerender;cause=inline-obj-ref;fix=useMemo;note=shallow-cmp]
 H1[f=src/parser.ts;st=impl;it=nt;ut=pass;q=legacy-csv;n=integ,fixture,merge]
 M1[tool=bun;search=rg;git=safe;fe=design-sys;font=no-new]
 K1[f=src/auth.ts;api=stable;err=exact;mig=no;bt=todo]
 V1[f=src/cache.ts;issue=stale-partial-inval;c=api-stable;t=concurr-inval;r=miss-counter-shape]
+P1[s=scan;n=bench]
 ```
 
 These are preferred when they are shorter than the equivalent `CCM1` form.
+
+Use `P1[...]` for unavoidable user-visible progress/status when the state is not meant to become reusable memory.
+
+Recommended `P1` fields:
+
+- `s=` short current phase or status
+- `n=` immediate next action
+- `r=` blocker or risk only if it changes the next action
 
 Example `max` layout:
 

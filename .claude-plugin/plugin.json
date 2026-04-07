@@ -1,0 +1,13 @@
+{
+  "name": "compressoor",
+  "version": "0.1.0",
+  "description": "Explicit-use context compaction for Claude Code handoffs, review notes, constraint summaries, and prompt benchmarks.",
+  "author": {
+    "name": "Max",
+    "url": "https://github.com/max/compressoor"
+  },
+  "homepage": "https://github.com/max/compressoor",
+  "repository": "https://github.com/max/compressoor",
+  "license": "MIT",
+  "keywords": ["productivity", "compression", "context", "memory", "writing"]
+}

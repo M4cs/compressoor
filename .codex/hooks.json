@@ -2,21 +2,20 @@
   "hooks": {
     "SessionStart": [
       {
-        "matcher": "startup|resume",
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/skills/compressoor/scripts/session_start_hook.py\""
+            "command": "python3 /Users/max/compressoor/skills/compressoor/scripts/session_start_hook.py"
           }
         ]
       }
     ],
-    "UserPromptSubmit": [
+    "SessionResume": [
       {
         "hooks": [
           {
             "type": "command",
-            "command": "/usr/bin/python3 \"$(git rev-parse --show-toplevel)/skills/compressoor/scripts/user_prompt_submit_hook.py\""
+            "command": "python3 /Users/max/compressoor/skills/compressoor/scripts/session_resume_hook.py"
           }
         ]
       }

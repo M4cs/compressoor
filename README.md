@@ -1,147 +1,166 @@
 # compressoor
 
-Low-loss context compression for Codex.
+Compressoor is an explicit-use context compactor for Codex and Claude Code.
 
-| ✦ | What |
-|---|---|
-| 🧠 | Packs handoffs, repo memory, review notes, debug state, and constraints into `CCM1` or compact envelopes |
-| 🎯 | Preserves technical atoms like commands, paths, identifiers, errors, and URLs |
-| 🔁 | Validates round-trip fidelity locally instead of trusting vibes |
-| 🧩 | Ships as both a Codex plugin and a standalone skill |
+It is meant for cases where you intentionally want to shrink durable context such as handoffs, review notes, constraint summaries, or benchmark prompts. The packaged Codex setup also boots a tool-first low-chatter session policy through session start/resume hooks.
 
-## Snapshot
+## What it is
 
-| 📊 Corpus baseline | Value |
-|---|---:|
-| Cases | 19 |
-| Round-trip pass | 19/19 |
-| Avg saved | 58.0% |
-| Avg keyword recall | 0.921 |
-| Avg fact recall | 1.000 |
-| Stability pass | 19/19 |
+- A Codex skill and plugin plus a Claude Code plugin for explicit prompt compaction
+- A small set of scripts for direct prompt compaction, rendering short live context, and benchmarking compact context
+- Session bootstrap hooks and an optional launcher for Codex
 
-| 🗂️ Domain | Pass | Avg saved | Keyword | Facts | Stability |
-|---|---:|---:|---:|---:|---:|
-| `code` | 9/9 | 52.1% | 0.906 | 1.000 | 9/9 |
-| `debug` | 2/2 | 62.7% | 0.903 | 1.000 | 2/2 |
-| `frontend` | 2/2 | 62.0% | 0.979 | 1.000 | 2/2 |
-| `ops` | 2/2 | 62.8% | 0.940 | 1.000 | 2/2 |
-| `repo` | 2/2 | 69.8% | 0.886 | 1.000 | 2/2 |
-| `review` | 2/2 | 59.6% | 0.964 | 1.000 | 2/2 |
+## What it is not
 
-Run the main corpus benchmark:
+- Not an always-on repo policy
+- Not a hidden background hook system
+- Not something to invoke on every prompt by default
 
-```bash
-python3 skills/compressoor/scripts/run_corpus.py --level auto --check-stability
-```
+The current project setup is intentionally simple:
 
-## Quick Example
-
-| Stage | Output |
-|---|---|
-| Source | `Fix auth middleware token expiry bug. Keep the API contract and exact error message unchanged. Update the boundary-case tests. No database migration.` |
-| Packed | `K1[api=stable;g=auth-fix;err=exact;mig=no;bt=todo;cmp=<,<=]` |
-| Decoded | `Goals: fix auth middleware`<br>`Constraints: API stable, exact error text, no DB migration`<br>`Tests: boundary case still needs coverage` |
+- `AGENTS.md` states that compressoor is for explicit context-packing tasks only
+- the plugin `defaultPrompt` and agent prompts enforce tool-first minimal output
+- installed hooks bootstrap compressoor session mode on `SessionStart` and `SessionResume`
+- the session policy suppresses commentary/progress during tool loops
+- post-tool answers are intentionally tiny: shortest correct result, with explanation only for failures, blockers, or changed files when needed
+- the launcher adds the compressoor session prompt only when no compressoor policy or active compressoor hooks are already present
 
 ## Install
 
-| 🚀 Path | Command / Target |
-|---|---|
-| Plugin | [`plugins/compressoor/.codex-plugin/plugin.json`](plugins/compressoor/.codex-plugin/plugin.json) |
-| Standalone skill | [`skills/compressoor`](skills/compressoor) |
-| Global hook installer | `python3 skills/compressoor/scripts/install_codex_compressoor.py --force` |
-| Packed launcher | `python3 skills/compressoor/scripts/launch_codex_compressoor.py -- -C /path/to/repo` |
+### Codex Plugin
 
-### Codex plugin
+Install the plugin from [`plugins/compressoor/.codex-plugin/plugin.json`](/Users/max/compressoor/plugins/compressoor/.codex-plugin/plugin.json).
 
-1. Open `/plugins`.
-2. Select [`plugins/compressoor/.codex-plugin/plugin.json`](plugins/compressoor/.codex-plugin/plugin.json).
-3. Install `Compressoor`.
+### Claude Code Plugin
 
-### Global default mode
+Add this repository as a Claude marketplace, then install `compressoor`:
+
+```bash
+claude plugin marketplace add max/compressoor
+claude plugin install compressoor@compressoor
+```
+
+The Claude plugin ships:
+
+- [`.claude-plugin/marketplace.json`](/Users/max/compressoor/.claude-plugin/marketplace.json)
+- [`.claude-plugin/plugin.json`](/Users/max/compressoor/.claude-plugin/plugin.json)
+- [`.claude/agents/compressoor.md`](/Users/max/compressoor/.claude/agents/compressoor.md)
+- [`.claude/commands/compressoor.md`](/Users/max/compressoor/.claude/commands/compressoor.md)
+
+### Standalone skill / explicit-use notes
 
 ```bash
 python3 skills/compressoor/scripts/install_codex_compressoor.py --force
 ```
 
-That installer writes:
+This writes:
 
-| File | Effect |
-|---|---|
-| `~/.codex/AGENTS.md` | makes compressoor the default behavior |
-| `~/.codex/hooks.json` | injects packed hook enforcement |
-| `~/.codex/config.toml` | enables `codex_hooks = true` |
+- `~/.codex/AGENTS.md` with explicit-use guidance
+- `~/.codex/hooks.json` with `SessionStart` and `SessionResume` bootstrap hooks
 
-Optional project-level `AGENTS.md` install:
+The installed hooks inject compressoor session policy automatically on session start and resume. That policy is meant to reduce token use by:
+
+- calling tools silently whenever tools can advance the task
+- suppressing acknowledgements, commentary, and progress updates during tool loops
+- keeping post-tool answers extremely small
+
+If you also want the same note in a project `AGENTS.md`:
 
 ```bash
 python3 skills/compressoor/scripts/install_codex_compressoor.py --force \
   --project-agents /path/to/repo/AGENTS.md
 ```
 
-### Packed bootstrap launcher
+## Launch Codex With Compressoor
+
+Use the launcher if you want a Codex session bootstrapped with the explicit compressoor policy:
+
+```bash
+python3 skills/compressoor/scripts/launch_codex_compressoor.py -- -C /path/to/repo
+```
+
+Useful variants:
 
 ```bash
 python3 skills/compressoor/scripts/launch_codex_compressoor.py --print-bootstrap
-python3 skills/compressoor/scripts/launch_codex_compressoor.py -- -C /path/to/repo
 python3 skills/compressoor/scripts/launch_codex_compressoor.py --prompt "Review this repo for regressions." -- -C /path/to/repo
 ```
 
-## Use
+If compressoor guidance is already present in repo or global `AGENTS.md`, or active compressoor hooks are already installed, the launcher does not prepend another bootstrap prompt.
 
-| ✅ Good fits | Triggers |
-|---|---|
-| handoffs, repo rules, debug state, review findings, deploy notes, bug-fix constraints | `$compressoor`, `compress this handoff`, `pack this memory file`, `benchmark this context block` |
+## Session Behavior
 
-| ⚙️ Default behavior | Meaning |
-|---|---|
-| Compress by default | context gets packed even without an explicit user ask |
-| Tool-first | avoid narration before useful actions |
-| Packed updates only | if progress is required, emit encoder-produced `CCM1` or compact envelopes |
-| Reusable memory stays packed | handoffs and stored context default to compressed form |
-| Final replies stay short | outcome, verification, risk |
+When compressoor session mode is active, the intended behavior is:
 
-| 🧱 Enforcement layer | Path |
-|---|---|
-| Plugin prompt | plugin `defaultPrompt` |
-| Workspace policy | [`AGENTS.md`](AGENTS.md) |
-| Repo hooks | [`.codex/hooks.json`](.codex/hooks.json) |
-| Global installer | [`skills/compressoor/scripts/install_codex_compressoor.py`](skills/compressoor/scripts/install_codex_compressoor.py) |
-| Launcher | [`skills/compressoor/scripts/launch_codex_compressoor.py`](skills/compressoor/scripts/launch_codex_compressoor.py) |
+- tools first
+- no commentary, acknowledgements, or progress updates before or during tool loops
+- shortest correct result after the tool loop
+- explain only failures, blockers, or changed files when needed
 
-## How it packs
+This stricter mode is aimed at keeping token overhead small in long tool-driven sessions.
 
-| Step | What happens |
-|---|---|
-| 1 | Protect exact atoms: paths, commands, code, quoted errors, env vars, identifiers, URLs |
-| 2 | Strip filler and merge repeated constraints |
-| 3 | Route to generic `CCM1` or a compact template |
-| 4 | Decode and score locally before trusting it |
+## Use Cases
 
-| 🧪 Mode | Style |
-|---|---|
-| `lite` | compact, still fully grammatical |
-| `std` | short and direct |
-| `max` | telegraphic, best for model-to-model handoff |
+Use compressoor when you explicitly want to:
 
-Compact templates include `H1[...]`, `M1[...]`, `K1[...]`, `V1[...]`, and `E1[...]`.
+- pack a handoff
+- compress a memory note
+- shorten review findings
+- compact a constraint summary
+- benchmark verbose vs compact prompt text
 
-Protocol reference: [`skills/compressoor/references/protocol.md`](skills/compressoor/references/protocol.md)
+In practice, the simplest workflow is:
 
-## Tooling
+1. Take verbose reusable context.
+2. Compact it once.
+3. Reuse the shorter version in later prompts instead of resending the original prose.
 
-| Script | Purpose |
-|---|---|
-| [`pack_ccm.py`](skills/compressoor/scripts/pack_ccm.py) | deterministic packer |
-| [`unpack_ccm.py`](skills/compressoor/scripts/unpack_ccm.py) | structured decoder |
-| [`benchmark_ccm.py`](skills/compressoor/scripts/benchmark_ccm.py) | compression benchmark helper |
-| [`eval_roundtrip.py`](skills/compressoor/scripts/eval_roundtrip.py) | fidelity scorer |
-| [`run_corpus.py`](skills/compressoor/scripts/run_corpus.py) | batch corpus runner + stability gate |
-| [`launch_codex_compressoor.py`](skills/compressoor/scripts/launch_codex_compressoor.py) | packed Codex launcher |
-| [`session_start_hook.py`](skills/compressoor/scripts/session_start_hook.py) | session bootstrap hook |
-| [`user_prompt_submit_hook.py`](skills/compressoor/scripts/user_prompt_submit_hook.py) | per-turn prompt hook |
+In Claude Code, the explicit entry point is `/compressoor ...`. In Codex, use the installed plugin/skill explicitly.
 
-## Repo shape
+## Benchmarks
+
+Run the direct prompt-compaction benchmark:
+
+```bash
+python3 benchmarks/benchmark_explicit_packed_context.py
+```
+
+This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings. It includes:
+
+- `compact`: full compacted form
+- `compact_min`: shorter follow-up-oriented form
+
+To measure live Codex token usage for the same A/B prompts:
+
+```bash
+python3 benchmarks/benchmark_explicit_packed_context.py --limit 5 --live-codex
+python3 benchmarks/benchmark_explicit_packed_context.py --limit 5 --live-codex --repeats 3 --order alternate
+```
+
+There is also a Codex CLI integration benchmark:
+
+```bash
+python3 benchmarks/benchmark_codex_cli.py --limit 5
+```
+
+Use that one as a runtime/integration check, not as the primary savings benchmark.
+
+## Main Files
+
+- [`skills/compressoor/SKILL.md`](/Users/max/compressoor/skills/compressoor/SKILL.md): explicit-use skill behavior
+- [`skills/compressoor/scripts/compact_prompt.py`](/Users/max/compressoor/skills/compressoor/scripts/compact_prompt.py): direct prompt compactor
+- [`skills/compressoor/scripts/render_live_context.py`](/Users/max/compressoor/skills/compressoor/scripts/render_live_context.py): short live-context renderer
+- [`skills/compressoor/scripts/install_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/install_codex_compressoor.py): installer for explicit-use notes
+- [`skills/compressoor/scripts/launch_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/launch_codex_compressoor.py): session launcher
+- [`benchmarks/benchmark_explicit_packed_context.py`](/Users/max/compressoor/benchmarks/benchmark_explicit_packed_context.py): main benchmark runner
+
+## Tests
+
+```bash
+python3 -m unittest discover -s tests/compressoor -p 'test_*.py'
+```
+
+## Repo Layout
 
 ```text
 compressoor/
@@ -150,28 +169,3 @@ compressoor/
 ├── benchmarks/
 └── tests/compressoor/
 ```
-
-The editable source lives in [`skills/compressoor`](skills/compressoor). Keep [`plugins/compressoor`](plugins/compressoor) in sync when skill logic changes.
-
-## Tests
-
-```bash
-python3 -m unittest discover -s tests/compressoor -p 'test_*.py'
-```
-
-Coverage includes corpus thresholds, template routing, benchmark output, plugin defaults, hook output, installer defaults, and packed-context replacement behavior.
-
-## Notes
-
-| 🔎 Caveman-style comparison | Value |
-|---|---:|
-| `compressoor` local suite | 70.4% saved |
-| Caveman README reference | 65.0% saved |
-
-Reference inputs:
-
-- [`benchmarks/caveman_style_cases.jsonl`](benchmarks/caveman_style_cases.jsonl)
-- [`benchmarks/caveman_reference.json`](benchmarks/caveman_reference.json)
-
-> [!IMPORTANT]
-> Benchmarks here are local repo baselines, not universal guarantees. The corpus track is the one to trust.

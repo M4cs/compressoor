@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Codex SessionStart hook that injects compressoor session policy."""
+"""Codex SessionResume hook that injects compressoor session policy."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def main() -> int:
     json.load(sys.stdin)
     payload = {
         "hookSpecificOutput": {
-            "hookEventName": "SessionStart",
+            "hookEventName": "SessionResume",
             "additionalContext": POLICY.read_text(encoding="utf-8").strip(),
         }
     }

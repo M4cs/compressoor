@@ -10,9 +10,9 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 HOOKS_JSON = ROOT / ".codex" / "hooks.json"
-SESSION_HOOK = ROOT / "skills" / "compressoor" / "scripts" / "session_start_hook.py"
-TURN_HOOK = ROOT / "skills" / "compressoor" / "scripts" / "user_prompt_submit_hook.py"
 INSTALLER = ROOT / "skills" / "compressoor" / "scripts" / "install_codex_compressoor.py"
+SESSION_START = ROOT / "skills" / "compressoor" / "scripts" / "session_start_hook.py"
+SESSION_RESUME = ROOT / "skills" / "compressoor" / "scripts" / "session_resume_hook.py"
 
 
 def load_module(path: Path, name: str):
@@ -25,56 +25,55 @@ def load_module(path: Path, name: str):
 
 
 class HookTests(unittest.TestCase):
-    def test_repo_hooks_config_uses_supported_events(self) -> None:
+    def test_repo_hooks_config_installs_session_bootstrap_hooks(self) -> None:
         payload = json.loads(HOOKS_JSON.read_text(encoding="utf-8"))
         hooks = payload["hooks"]
         self.assertIn("SessionStart", hooks)
-        self.assertIn("UserPromptSubmit", hooks)
-        session_cmd = hooks["SessionStart"][0]["hooks"][0]["command"]
-        turn_cmd = hooks["UserPromptSubmit"][0]["hooks"][0]["command"]
-        self.assertIn("session_start_hook.py", session_cmd)
-        self.assertIn("user_prompt_submit_hook.py", turn_cmd)
-        self.assertIn("git rev-parse --show-toplevel", session_cmd)
+        self.assertIn("SessionResume", hooks)
+        start_command = hooks["SessionStart"][0]["hooks"][0]["command"]
+        resume_command = hooks["SessionResume"][0]["hooks"][0]["command"]
+        self.assertIn("session_start_hook.py", start_command)
+        self.assertIn("session_resume_hook.py", resume_command)
 
-    def test_session_start_hook_returns_packed_additional_context(self) -> None:
-        proc = subprocess.run(
-            ["python3", str(SESSION_HOOK)],
-            input="{}",
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        payload = json.loads(proc.stdout)
-        out = payload["hookSpecificOutput"]
-        self.assertEqual(out["hookEventName"], "SessionStart")
-        ctx = out["additionalContext"]
-        self.assertTrue(ctx.startswith("CCM1|") or ctx[:2] in {"H1", "M1", "K1", "V1", "E1"}, ctx)
-
-    def test_user_prompt_submit_hook_returns_packed_additional_context(self) -> None:
-        proc = subprocess.run(
-            ["python3", str(TURN_HOOK)],
-            input='{"prompt":"check repo"}',
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        payload = json.loads(proc.stdout)
-        out = payload["hookSpecificOutput"]
-        self.assertEqual(out["hookEventName"], "UserPromptSubmit")
-        ctx = out["additionalContext"]
-        self.assertTrue(ctx.startswith("CCM1|") or ctx[:2] in {"H1", "M1", "K1", "V1", "E1"}, ctx)
-
-    def test_installer_renders_global_hooks_and_enables_feature(self) -> None:
+    def test_installer_renders_session_hooks(self) -> None:
         module = load_module(INSTALLER, "compressoor_installer")
         hooks = json.loads(module.render_hooks_config())
         self.assertIn("SessionStart", hooks["hooks"])
-        self.assertIn("UserPromptSubmit", hooks["hooks"])
+        self.assertIn("SessionResume", hooks["hooks"])
 
+    def test_installer_main_writes_agents_and_hooks_only(self) -> None:
+        module = load_module(INSTALLER, "compressoor_installer_main")
         with tempfile.TemporaryDirectory() as td:
-            config = Path(td) / "config.toml"
-            config.write_text("[features]\napps = false\n", encoding="utf-8")
-            changed = module.enable_hooks_feature(config)
-            self.assertTrue(changed)
-            text = config.read_text(encoding="utf-8")
-            self.assertIn("codex_hooks = true", text)
-            self.assertFalse(module.enable_hooks_feature(config))
+            agents = Path(td) / "AGENTS.md"
+            hooks = Path(td) / "hooks.json"
+            old_argv = __import__("sys").argv
+            __import__("sys").argv = [
+                "install_codex_compressoor.py",
+                "--force",
+                "--global-agents",
+                str(agents),
+                "--global-hooks",
+                str(hooks),
+            ]
+            try:
+                self.assertEqual(module.main(), 0)
+            finally:
+                __import__("sys").argv = old_argv
+            self.assertTrue(agents.exists())
+            self.assertTrue(hooks.exists())
+
+    def test_session_hook_scripts_emit_policy_context(self) -> None:
+        for event_name, script in (("SessionStart", SESSION_START), ("SessionResume", SESSION_RESUME)):
+            with self.subTest(event_name=event_name):
+                proc = subprocess.run(
+                    ["python3", str(script)],
+                    input="{}",
+                    capture_output=True,
+                    text=True,
+                    check=True,
+                )
+                payload = json.loads(proc.stdout)
+                hook = payload["hookSpecificOutput"]
+                self.assertEqual(hook["hookEventName"], event_name)
+                self.assertIn("Compressoor session mode is active", hook["additionalContext"])
+                self.assertIn("call them silently", hook["additionalContext"])

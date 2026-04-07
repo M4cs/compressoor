@@ -1,20 +1,15 @@
 #!/usr/bin/env python3
-"""
-Launch interactive Codex with a packed compressoor bootstrap prompt.
-"""
+"""Launch interactive Codex with an explicit compressoor system prompt."""
 
 from __future__ import annotations
 
 import argparse
 import os
-import subprocess
 import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-PACK = ROOT / "skills" / "compressoor" / "scripts" / "pack_ccm.py"
-SESSION_POLICY = ROOT / "skills" / "compressoor" / "policy" / "session_policy.txt"
 INTERACTIVE_SUBCOMMANDS = {
     "exec",
     "review",
@@ -34,25 +29,52 @@ INTERACTIVE_SUBCOMMANDS = {
     "features",
     "help",
 }
-SESSION_POLICY_TEXT = SESSION_POLICY.read_text(encoding="utf-8").strip()
-# Policy text includes: Do not send any human-readable status message before a tool call.
+POLICY = ROOT / "skills" / "compressoor" / "policy" / "session_policy.txt"
+
+
+def has_compressoor_hooks() -> bool:
+    hooks_path = ROOT / ".codex" / "hooks.json"
+    if not hooks_path.exists():
+        return False
+    try:
+        payload = __import__("json").loads(hooks_path.read_text(encoding="utf-8"))
+    except Exception:
+        return False
+    hooks = payload.get("hooks")
+    return isinstance(hooks, dict) and any(hooks.values())
 
 
 def build_bootstrap() -> str:
-    proc = subprocess.run(
-        ["python3", str(PACK), "--level", "std", "--domain", "repo", "--source-id", "sess_boot"],
-        input=SESSION_POLICY_TEXT,
-        capture_output=True,
-        text=True,
-        check=True,
+    return POLICY.read_text(encoding="utf-8").strip()
+
+
+def has_compressoor_policy() -> bool:
+    if os.environ.get("COMPRESSOOR_FORCE_BOOTSTRAP") == "1":
+        return False
+    if has_compressoor_hooks():
+        return True
+    markers = (
+        "$compressoor",
+        "Compressoor session mode is active",
+        "explicit context-packing tasks only",
+        "call them silently",
     )
-    packed = proc.stdout.strip()
-    if not packed or not (packed.startswith("CCM1|") or packed[:2] in {"H1", "M1", "K1", "V1", "E1"}):
-        raise RuntimeError(f"unexpected bootstrap payload: {packed!r}")
-    return packed
+    candidates = [
+        ROOT / "AGENTS.md",
+        Path(os.environ.get("CODEX_HOME", str(Path.home() / ".codex"))) / "AGENTS.md",
+    ]
+    for path in candidates:
+        if not path.exists():
+            continue
+        text = path.read_text(encoding="utf-8")
+        if any(marker in text for marker in markers):
+            return True
+    return False
 
 
 def compose_prompt(user_prompt: str | None) -> str:
+    if has_compressoor_policy():
+        return user_prompt or ""
     packed = build_bootstrap()
     if user_prompt:
         return f"{packed}\n{user_prompt}"
@@ -79,13 +101,13 @@ def reject_noninteractive_subcommands(argv: list[str]) -> None:
 
 
 def parse_args(argv: list[str]) -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Launch Codex with a packed compressoor session bootstrap.")
+    parser = argparse.ArgumentParser(description="Launch Codex with an explicit compressoor session system prompt.")
     parser.add_argument("--codex-bin", default=os.environ.get("CODEX_BIN", "codex"))
-    parser.add_argument("--prompt", help="Optional user prompt appended after the packed bootstrap.")
+    parser.add_argument("--prompt", help="Optional user prompt appended after the explicit session prompt.")
     parser.add_argument(
         "--print-bootstrap",
         action="store_true",
-        help="Print the packed startup payload and exit.",
+        help="Print the explicit startup prompt and exit.",
     )
     parser.add_argument("codex_args", nargs=argparse.REMAINDER)
     return parser.parse_args(argv)

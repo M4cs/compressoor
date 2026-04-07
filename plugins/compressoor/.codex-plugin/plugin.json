@@ -13,14 +13,14 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Compressoor",
-    "shortDescription": "Default execution-first context compression across projects.",
-    "longDescription": "Aggressive low-loss context compression for Codex working state. When installed, Compressoor should be used by default across projects and across all agents working in the workspace to keep context compact, preserve technical atoms, bias toward doing first, and defer explanation until the end.",
+    "shortDescription": "Explicit prompt compaction for Codex tasks.",
+    "longDescription": "Direct prompt compaction for explicit Codex handoffs, review notes, constraints, and token benchmarks. Compressoor is best used when you intentionally replace verbose reusable context with shorter direct prompt text.",
     "developerName": "Max",
     "category": "Productivity",
     "capabilities": ["Write"],
     "websiteURL": "https://github.com/max/compressoor",
     "defaultPrompt": [
-      "Use $compressoor by default across projects to keep working context compact, preserve technical atoms exactly, act before explaining, and avoid narrating each step. These requirements apply to all agents and sub-agents using this workspace. Tool calls first: if a tool can materially advance the task, take that tool action before any optional progress or summary text, and do not send any human-readable pre-tool status message first. Do not send progress updates unless the environment requires one, and do not send routine plaintext progress updates. If the environment requires an update, emit only the true encoder-produced packed CCM1/template context instead of human-readable status text or a hand-written packed-looking paraphrase. Required updates, reusable memory, and handoffs must use compressoor methods rather than plaintext. When compacting reusable context, encode it with compressoor, store the encoded context, replace the verbose form with CCM1 or compact envelopes as the new active context by default, and continue from that packed state. Keep final summaries extremely terse: short outcome, key verification, and only material remaining risk."
+      "Compressoor session mode is active. If tools can advance the task, call them silently. Never send acknowledgements, commentary, progress updates, or any other message before, between, or during tool calls. Finish the current tool loop first. After the tool loop ends, respond with extreme minimalism: shortest correct result only. No narrative recap. No optional detail. Explain only failures, blockers, or changed files when needed for correctness."
     ],
     "brandColor": "#14532D"
   }

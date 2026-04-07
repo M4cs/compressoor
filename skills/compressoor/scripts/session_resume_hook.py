@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Codex SessionStart hook that injects compressoor session policy."""
+"""Codex SessionResume hook that injects compressoor session policy."""
 
 from __future__ import annotations
 
@@ -8,15 +8,15 @@ import sys
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[5]
-POLICY = ROOT / "plugins" / "compressoor" / "skills" / "compressoor" / "policy" / "session_policy.txt"
+ROOT = Path(__file__).resolve().parents[3]
+POLICY = ROOT / "skills" / "compressoor" / "policy" / "session_policy.txt"
 
 
 def main() -> int:
     json.load(sys.stdin)
     payload = {
         "hookSpecificOutput": {
-            "hookEventName": "SessionStart",
+            "hookEventName": "SessionResume",
             "additionalContext": POLICY.read_text(encoding="utf-8").strip(),
         }
     }

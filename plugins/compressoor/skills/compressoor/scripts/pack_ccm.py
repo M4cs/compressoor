@@ -104,6 +104,18 @@ PHRASE_REWRITES = [
     ("risk: legacy import fixtures may rely on previous whitespace trimming", "risk: legacy fixtures may rely on prev trim"),
 ]
 HEADER_MARKERS = ["|A[", "|G[", "|C[", "|D[", "|S[", "|F[", "|T[", "|R[", "|N[", "|Q[", "|H[", "|M[", "|K[", "|V[", "|E["]
+INSTRUCTION_MARKERS = (
+    "$compressoor",
+    "tool calls first",
+    "never send any message before",
+    "tool loop is complete",
+    "pre-tool status",
+    "never send progress updates",
+    "packed context internal",
+    "reusable handoffs",
+    "agents and sub-agents",
+    "final summaries",
+)
 
 
 def read_input(path: str | None) -> str:
@@ -495,7 +507,10 @@ def build_constraint_template(text: str, domain: str, source_id: str) -> str | N
         parts.append("fe=design-sys")
     if "public props unchanged" in low or "keep public props unchanged" in low:
         parts.append("props=stable")
-    if len(parts) < 2:
+    meaningful = [
+        part for part in parts if not part.startswith("f=") and part not in {"fe=design-sys", "props=stable"}
+    ]
+    if not meaningful:
         return None
     return f"K1[{';'.join(parts)}]\n"
 
@@ -575,12 +590,78 @@ def build_explain_template(text: str, domain: str, source_id: str) -> str | None
     return f"E1[{';'.join(parts)}]\n"
 
 
+def build_progress_template(text: str, domain: str, source_id: str) -> str | None:
+    low = text.lower().strip()
+    if len(text) > 140 or FILE_RE.search(text) or "current status:" in low:
+        return None
+    if not any(token in low for token in ["status", "progress", "working", "next", "scanning", "checking", "benchmark"]):
+        return None
+
+    parts = []
+    if "benchmark" in low:
+        parts.append("s=bench")
+    elif "scan" in low or "scanning" in low:
+        parts.append("s=scan")
+    elif "check" in low or "checking" in low:
+        parts.append("s=check")
+    elif "test" in low or "testing" in low:
+        parts.append("s=test")
+    elif "working" in low:
+        parts.append("s=work")
+    elif "status" in low:
+        parts.append("s=status")
+
+    if "next" in low:
+        if "benchmark" in low:
+            parts.append("n=bench")
+        elif "test" in low:
+            parts.append("n=test")
+        elif "verify" in low:
+            parts.append("n=verify")
+        elif "patch" in low or "fix" in low:
+            parts.append("n=patch")
+    elif "benchmark" in low:
+        parts.append("n=bench")
+    elif "verify" in low:
+        parts.append("n=verify")
+
+    if "blocked" in low:
+        parts.append("r=blocked")
+    elif "waiting" in low:
+        parts.append("r=wait")
+    elif "risk" in low:
+        parts.append("r=risk")
+
+    if not parts:
+        return None
+    return f"P1[{';'.join(parts)}]\n"
+
+
+def is_instruction_like(text: str) -> bool:
+    low = text.lower()
+    return any(marker in low for marker in INSTRUCTION_MARKERS)
+
+
 def template_pack(text: str, domain: str, source_id: str) -> str | None:
-    for builder in (build_handoff_template, build_memory_template, build_constraint_template, build_review_template, build_explain_template):
+    if is_instruction_like(text):
+        return None
+    candidates: list[tuple[int, str]] = []
+    for priority, builder in (
+        (1, build_progress_template),
+        (5, build_handoff_template),
+        (4, build_memory_template),
+        (3, build_constraint_template),
+        (5, build_review_template),
+        (4, build_explain_template),
+    ):
         packed = builder(text, domain, source_id)
         if packed:
-            return packed
-    return None
+            candidates.append((priority, packed))
+    if not candidates:
+        return None
+    best_priority = max(priority for priority, _ in candidates)
+    best_candidates = [packed for priority, packed in candidates if priority == best_priority]
+    return min(best_candidates, key=packed_length)
 
 
 def candidate_sections(text: str, use_dynamic_abbrevs: bool) -> dict[str, list[str]]:

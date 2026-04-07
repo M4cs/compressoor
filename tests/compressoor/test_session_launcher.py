@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import unittest
 from pathlib import Path
 
@@ -24,16 +25,32 @@ class SessionLauncherTests(unittest.TestCase):
         self.assertTrue(LAUNCHER.exists())
         self.assertTrue(PLUGIN_LAUNCHER.exists())
 
-    def test_bootstrap_is_packed(self) -> None:
+    def test_bootstrap_is_explicit_session_prompt(self) -> None:
         module = load_module(LAUNCHER, "compressoor_launcher")
-        packed = module.build_bootstrap()
-        self.assertTrue(packed.startswith("CCM1|") or packed[:2] in {"H1", "M1", "K1", "V1", "E1"}, packed)
-        self.assertNotIn("human-readable status message", packed)
+        prompt = module.build_bootstrap()
+        self.assertIn("Compressoor session mode is active", prompt)
+        self.assertIn("call them silently", prompt)
+        self.assertIn("Never send acknowledgements, commentary, progress updates", prompt)
+        self.assertIn("extreme minimalism", prompt)
+        self.assertLess(len(prompt), 620)
 
-    def test_compose_prompt_keeps_packed_bootstrap_first(self) -> None:
+    def test_compose_prompt_skips_session_prompt_when_policy_exists(self) -> None:
         module = load_module(LAUNCHER, "compressoor_launcher_prompt")
         prompt = module.compose_prompt("Fix the failing test.")
-        self.assertTrue(prompt.startswith("CCM1|") or prompt[:2] in {"H1", "M1", "K1", "V1", "E1"}, prompt)
+        self.assertEqual(prompt, "Fix the failing test.")
+
+    def test_compose_prompt_uses_bootstrap_without_agents_policy(self) -> None:
+        module = load_module(LAUNCHER, "compressoor_launcher_bootstrap")
+        old = os.environ.get("COMPRESSOOR_FORCE_BOOTSTRAP")
+        os.environ["COMPRESSOOR_FORCE_BOOTSTRAP"] = "1"
+        try:
+            prompt = module.compose_prompt("Fix the failing test.")
+        finally:
+            if old is None:
+                os.environ.pop("COMPRESSOOR_FORCE_BOOTSTRAP", None)
+            else:
+                os.environ["COMPRESSOOR_FORCE_BOOTSTRAP"] = old
+        self.assertTrue(prompt.startswith("Compressoor session mode is active"), prompt)
         self.assertTrue(prompt.endswith("\nFix the failing test."), prompt)
 
     def test_noninteractive_subcommands_are_rejected(self) -> None:

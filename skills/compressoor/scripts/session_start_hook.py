@@ -1,39 +1,23 @@
 #!/usr/bin/env python3
-"""
-Codex SessionStart hook that injects packed compressoor policy.
-"""
+"""Codex SessionStart hook that injects compressoor session policy."""
 
 from __future__ import annotations
 
 import json
-import subprocess
 import sys
 from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[3]
-PACK = ROOT / "skills" / "compressoor" / "scripts" / "pack_ccm.py"
 POLICY = ROOT / "skills" / "compressoor" / "policy" / "session_policy.txt"
-
-
-def pack_text(text: str, source_id: str) -> str:
-    proc = subprocess.run(
-        ["python3", str(PACK), "--level", "std", "--domain", "repo", "--source-id", source_id],
-        input=text,
-        capture_output=True,
-        text=True,
-        check=True,
-    )
-    return proc.stdout.strip()
 
 
 def main() -> int:
     json.load(sys.stdin)
-    packed = pack_text(POLICY.read_text(encoding="utf-8"), "sess_hook")
     payload = {
         "hookSpecificOutput": {
             "hookEventName": "SessionStart",
-            "additionalContext": packed,
+            "additionalContext": POLICY.read_text(encoding="utf-8").strip(),
         }
     }
     json.dump(payload, sys.stdout)

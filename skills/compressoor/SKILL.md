@@ -5,27 +5,32 @@ description: Compress Codex context into compact, reusable, low-loss envelopes w
 
 # Compressoor
 
-When this plugin is installed, use this skill by default across projects to keep Codex working context compact. Do not wait for an explicit request when compression will help preserve context budget or reduce fluff. It should shape normal operating behavior, not just one-off compression tasks.
+Use this skill for explicit packing, unpacking, and benchmark tasks. Do not treat it as a default runtime policy.
 
 Do not treat this as a license to emit opaque private-thought gibberish. The target is compressed working memory, not hidden chain-of-thought.
 
-When `compressoor` is installed, default to terse execution mode for every agent and sub-agent using the workspace:
+Compressoor still favors terse execution mode during explicit use:
 
+- default to terse execution mode for every agent and sub-agent
+- start with the next relevant tool action immediately
+- call tools silently whenever tools can advance the task
 - prefer taking the next relevant tool action before sending any optional outward message
+- never send any message before the current tool loop is complete
+- never send acknowledgements, commentary, or status text before, between, or during tool calls
 - do not narrate every step of repo exploration, search, or implementation
 - do not explain obvious process unless it changes the plan, exposes risk, or unblocks the user
+- when a task needs a loop of tool calls, finish the loop first and explain only after the loop completes
 - do not send routine plaintext progress updates
 - do not send any human-readable pre-tool status message when a tool call can materially advance the task
-- if an update is required by the environment, emit only the actual encoder-produced packed `CCM1` or compact-template payload instead of human-readable status text
-- if an update is required, produce it with the compressoor encoder rather than writing plaintext or a hand-written packed-looking variant
-- use compressed envelopes for reusable context, handoffs, and stored project memory by default
-- when compacting context, replace verbose working context with the packed form, store the encoded result when memory or handoff state is being kept, and continue from the packed state
-- keep final work summaries minimal: short outcome, key verification, material remaining risk only
+- do not send any optional or required progress message mid-loop; wait until the loop is done
+- use compressed envelopes for reusable context, handoffs, and stored project memory when a later turn will actually consume them
+- prefer readable minimal handoffs over opaque symbolic envelopes in live Codex flows when they benchmark better
+- keep final work summaries simplified but detailed: what was done, why it was done, key verification, material remaining risk only
 - keep code, commands, errors, paths, and other technical atoms exact
 
 ## Goals
 
-- Shrink token count hard.
+- Shrink token count hard where live Codex usage actually improves.
 - Preserve actionable meaning.
 - Preserve technical atoms exactly.
 - Keep the result decodable across turns.
@@ -41,13 +46,16 @@ When `compressoor` is installed, default to terse execution mode for every agent
 - Never store private chain-of-thought or speculative reasoning as if it were fact.
 - Never send an optional progress message before a tool call when a tool can materially advance the task.
 - Never send a human-readable pre-tool status message when a tool can materially advance the task.
+- Never send any message before the current tool loop is complete.
+- Never send acknowledgements, commentary, or status text before, between, or during tool calls.
+- Never interrupt an active tool-gathering or tool-execution loop with plaintext status.
 - Never force step-by-step narration when a shorter status or direct answer is enough.
-- Never send a progress update unless the environment requires one.
-- Never send plaintext progress updates when a packed `CCM1` or compact-template status can carry the same state.
-- Never hand-write a fake packed status; use the encoder output when a progress update is unavoidable.
-- Never bypass compressoor for reusable memory, handoffs, or required progress payloads.
-- Never expand progress updates into human-readable play-by-play when a packed status is sufficient.
-- Never turn final summaries into long recaps when a one-line or very short close-out is sufficient.
+- Never send a progress update.
+- Never send plaintext progress updates.
+- Never hand-write a fake packed status for live progress.
+- Never bypass compressoor for reusable memory or handoffs.
+- Never expand summaries into human-readable play-by-play.
+- Never turn final summaries into long recaps when a simplified but detailed close-out is sufficient.
 - When uncertain, choose lower compression and higher fidelity.
 
 ## Workflow
@@ -59,10 +67,10 @@ When `compressoor` is installed, default to terse execution mode for every agent
    - deduplicate repeated constraints
    - convert paragraphs into explicit state
 3. Pack the result using `CCM1` from `references/protocol.md`.
-4. If the packed output will become stored or active context, discard the verbose source and retain the packed state as the new working context.
+4. For live Codex reuse, prefer the smallest readable handoff that preserves the needed facts.
 5. Decode the packed state into an action plan and do the work first.
 6. If the packed output will be reused later, immediately unpack it mentally and verify that no instruction, decision, or blocker was lost.
-7. If needed, benchmark source vs packed text with `scripts/benchmark_ccm.py`.
+7. Benchmark candidate formats, not just raw packed length.
 
 ## Compression Levels
 
@@ -139,25 +147,27 @@ When using compressed memory in real work:
 
 - These defaults are mandatory for all agents and sub-agents operating with compressoor enabled.
 - Work first, summarize later.
-- Tool calls first. If a tool can advance the task, take that tool action before any optional progress or summary text.
+- Call tools silently whenever tools can advance the task.
+- Tool calls first. If a tool can advance the task, take that tool action before any message.
 - Do not send a human-readable status message before a tool call when the tool can advance the task.
-- Do not emit progress updates unless the environment requires them.
-- If a progress update is unavoidable, encode it with the compressoor protocol instead of sending plaintext status.
-- If a progress update is unavoidable, generate it with the compressoor encoder rather than hand-writing a packed-looking string.
+- Never send any message before the current tool loop is complete.
+- Never send acknowledgements, commentary, or status text before, between, or during tool calls.
+- When multiple tool calls are needed to gather or apply the next chunk of work, complete that tool loop before sending explanation.
+- Do not emit progress updates.
 - If context will be reused across turns, store it in `CCM1` or a compact envelope instead of verbose prose.
 - After packing reusable context, store the encoded context, then stop carrying the verbose version forward unless exact wording is operationally required.
-- If a progress update is unavoidable, use the true packed context from the encoder instead of a human-readable paraphrase.
-- Keep final close-out terse unless the user asks for detail.
+- After packing reusable context, discard the verbose source and retain the packed state unless exact wording is operationally required.
+- Keep final close-out simplified but detailed.
 - If a reply can be one sentence without losing meaning, use one sentence.
 - If the user asks for depth, expand from the packed state instead of improvising a long answer.
 
 ## Final Summary Style
 
-- Say what was done.
+- Say what was done and why it was done.
 - Include verification only if it materially supports the result.
 - Include remaining risk only if it changes next steps.
 - Skip exhaustive edit inventories unless requested.
-- Prefer one sentence or a few key points over a narrative recap.
+- Prefer a simplified but detailed close-out over a narrative recap.
 
 ## Codex-Specific Heuristics
 
@@ -172,29 +182,26 @@ When using compressed memory in real work:
 - Protocol and abbreviations: `references/protocol.md`
 - Sample eval corpus: `references/eval-corpus.md`
 - Batch corpus: `references/corpus.jsonl`
-- Deterministic packer: `scripts/pack_ccm.py`
-- Deterministic unpacker: `scripts/unpack_ccm.py`
-- Round-trip evaluator: `scripts/eval_roundtrip.py`
-- Token and preservation benchmark: `scripts/benchmark_ccm.py`
-- Corpus runner: `scripts/run_corpus.py`
+- Direct prompt compactor: `scripts/compact_prompt.py`
+- Live-context renderer: `scripts/render_live_context.py`
+- Prompt savings benchmark: `../../benchmarks/benchmark_explicit_packed_context.py`
+- Codex CLI integration benchmark: `../../benchmarks/benchmark_codex_cli.py`
 
 ## Output Style
 
 When the user asks for compressed context, return:
 
-1. the packed `CCM1` block
-2. treat that packed block as the new active context unless the user asks to preserve the verbose source too
-3. a one-line note on compression level and known loss risk
+1. a direct compact restatement, or a short `CTX:` handoff when that format is useful
+2. treat that compact form as the new active context unless the user asks to preserve the verbose source too
+3. a one-line note on any known loss risk
 
 ## Local Iteration Loop
 
 For repeated refinement:
 
-1. pack a source note with `scripts/pack_ccm.py`
-2. benchmark source vs packed output
-3. unpack with `scripts/unpack_ccm.py`
-4. score the round trip with `scripts/eval_roundtrip.py`
-5. run `scripts/run_corpus.py` before and after rule changes to check aggregate impact
-6. run `scripts/run_corpus.py --check-stability` before keeping aggressive template/tag changes
+1. compact a source note with `scripts/compact_prompt.py`
+2. render a short reusable handoff with `scripts/render_live_context.py` when needed
+3. run `../../benchmarks/benchmark_explicit_packed_context.py` before and after rule changes to check aggregate savings
+4. use `../../benchmarks/benchmark_codex_cli.py` only when you need a live Codex integration check
 
 If a pattern fails repeatedly, update the protocol or abbreviation rules instead of relying on prompt improvisation.

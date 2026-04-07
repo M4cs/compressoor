@@ -1,24 +1,23 @@
 #!/usr/bin/env python3
-"""
-Install compressoor's default Codex policy into AGENTS, hooks, and config files.
-"""
+"""Install compressoor's explicit-use notes into AGENTS and hooks files."""
 
 from __future__ import annotations
 
 import argparse
 import json
-import re
 from pathlib import Path
 
 
-ROOT = Path(__file__).resolve().parents[5]
-GLOBAL_TEMPLATE = ROOT / "plugins" / "compressoor" / "skills" / "compressoor" / "policy" / "global_agents.md"
-SESSION_HOOK = ROOT / "plugins" / "compressoor" / "skills" / "compressoor" / "scripts" / "session_start_hook.py"
-TURN_HOOK = ROOT / "plugins" / "compressoor" / "skills" / "compressoor" / "scripts" / "user_prompt_submit_hook.py"
+ROOT = Path(__file__).resolve().parents[3]
+GLOBAL_TEMPLATE = ROOT / "skills" / "compressoor" / "policy" / "global_agents.md"
 
 
 def render_global_agents() -> str:
     return GLOBAL_TEMPLATE.read_text(encoding="utf-8").rstrip() + "\n"
+
+
+def hook_command(script_name: str) -> str:
+    return f"python3 {ROOT / 'skills' / 'compressoor' / 'scripts' / script_name}"
 
 
 def render_hooks_config() -> str:
@@ -26,23 +25,16 @@ def render_hooks_config() -> str:
         "hooks": {
             "SessionStart": [
                 {
-                    "matcher": "startup|resume",
                     "hooks": [
-                        {
-                            "type": "command",
-                            "command": f'/usr/bin/python3 "{SESSION_HOOK}"',
-                        }
-                    ],
+                        {"type": "command", "command": hook_command("session_start_hook.py")},
+                    ]
                 }
             ],
-            "UserPromptSubmit": [
+            "SessionResume": [
                 {
                     "hooks": [
-                        {
-                            "type": "command",
-                            "command": f'/usr/bin/python3 "{TURN_HOOK}"',
-                        }
-                    ],
+                        {"type": "command", "command": hook_command("session_resume_hook.py")},
+                    ]
                 }
             ],
         }
@@ -62,31 +54,10 @@ def write_text(path: Path, content: str, force: bool = False) -> bool:
     return True
 
 
-def enable_hooks_feature(config_path: Path) -> bool:
-    if config_path.exists():
-        text = config_path.read_text(encoding="utf-8")
-    else:
-        text = ""
-
-    if re.search(r"(?m)^codex_hooks\s*=\s*true\s*$", text):
-        return False
-
-    if "[features]" in text:
-        updated = re.sub(r"(?ms)^\[features\]\n", "[features]\ncodex_hooks = true\n", text, count=1)
-    else:
-        prefix = "[features]\ncodex_hooks = true\n"
-        updated = prefix if not text.strip() else prefix + "\n" + text.lstrip("\n")
-
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    config_path.write_text(updated, encoding="utf-8")
-    return True
-
-
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Install compressoor as the default Codex policy.")
+    parser = argparse.ArgumentParser(description="Install compressoor's explicit-use workspace notes.")
     parser.add_argument("--global-agents", type=Path, default=Path.home() / ".codex" / "AGENTS.md")
     parser.add_argument("--global-hooks", type=Path, default=Path.home() / ".codex" / "hooks.json")
-    parser.add_argument("--config", type=Path, default=Path.home() / ".codex" / "config.toml")
     parser.add_argument("--project-agents", type=Path, action="append", default=[])
     parser.add_argument("--force", action="store_true")
     return parser.parse_args()
@@ -103,9 +74,6 @@ def main() -> int:
 
     changed = write_text(args.global_hooks, hooks, force=args.force)
     print(f"{'wrote' if changed else 'unchanged'} {args.global_hooks}")
-
-    changed = enable_hooks_feature(args.config)
-    print(f"{'updated' if changed else 'unchanged'} {args.config}")
     return 0
 
 
