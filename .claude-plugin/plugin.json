@@ -1,7 +1,7 @@
 {
   "name": "compressoor",
   "version": "0.1.0",
-  "description": "Explicit-use context compaction for Claude Code handoffs, review notes, constraint summaries, and prompt benchmarks.",
+  "description": "Concise runtime policy for Claude Code with optional context compaction for handoffs, review notes, constraints, and prompt benchmarks.",
   "author": {
     "name": "Max",
     "url": "https://github.com/max/compressoor"

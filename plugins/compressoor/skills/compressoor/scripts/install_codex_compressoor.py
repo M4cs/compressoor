@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Install compressoor's explicit-use notes into AGENTS and hooks files."""
+"""Install compressoor's concise runtime policy into AGENTS and hooks files."""
 
 from __future__ import annotations
 
@@ -55,7 +55,7 @@ def write_text(path: Path, content: str, force: bool = False) -> bool:
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="Install compressoor's explicit-use workspace notes.")
+    parser = argparse.ArgumentParser(description="Install compressoor's concise runtime policy notes.")
     parser.add_argument("--global-agents", type=Path, default=Path.home() / ".codex" / "AGENTS.md")
     parser.add_argument("--global-hooks", type=Path, default=Path.home() / ".codex" / "hooks.json")
     parser.add_argument("--project-agents", type=Path, action="append", default=[])

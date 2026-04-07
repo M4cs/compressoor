@@ -1,7 +1,7 @@
 {
   "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
   "name": "compressoor",
-  "description": "Explicit-use context compaction for Claude Code. Pack and unpack durable context only when asked.",
+  "description": "Concise runtime policy for Claude Code with optional durable-context compaction tools.",
   "owner": {
     "name": "Max",
     "url": "https://github.com/max/compressoor"
@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "compressoor",
-      "description": "Pack, unpack, and benchmark reusable context without turning compaction into a default runtime policy.",
+      "description": "Keep Claude Code concise and professional by default, with pack, unpack, and benchmark tools for reusable context.",
       "source": "./",
       "category": "productivity"
     }

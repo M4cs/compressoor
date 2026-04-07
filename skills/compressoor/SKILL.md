@@ -1,42 +1,33 @@
 ---
 name: compressoor
-description: Compress Codex context into compact, reusable, low-loss envelopes with aggressive token savings, protected technical atoms, and local corpus-driven validation for fidelity and stability.
+description: Keep Codex concise, professional, and tool-first, with optional low-loss context compression for durable handoffs, memory notes, review findings, and prompt benchmarks.
 ---
 
 # Compressoor
 
-Use this skill for explicit packing, unpacking, and benchmark tasks. Do not treat it as a default runtime policy.
+Compressoor is a runtime policy first and a packing toolset second.
 
-Do not treat this as a license to emit opaque private-thought gibberish. The target is compressed working memory, not hidden chain-of-thought.
+The target style is short, professional, low-chatter output. Reduce token waste without sounding unnatural. Do not turn this into caveman phrasing, opaque private-thought gibberish, or fake compression theater.
 
-Compressoor still favors terse execution mode during explicit use:
+## Runtime defaults
 
-- default to terse execution mode for every agent and sub-agent
-- start with the next relevant tool action immediately
-- call tools silently whenever tools can advance the task
-- prefer taking the next relevant tool action before sending any optional outward message
-- never send any message before the current tool loop is complete
-- never send acknowledgements, commentary, or status text before, between, or during tool calls
-- do not narrate every step of repo exploration, search, or implementation
-- do not explain obvious process unless it changes the plan, exposes risk, or unblocks the user
-- when a task needs a loop of tool calls, finish the loop first and explain only after the loop completes
-- do not send routine plaintext progress updates
-- do not send any human-readable pre-tool status message when a tool call can materially advance the task
-- do not send any optional or required progress message mid-loop; wait until the loop is done
-- use compressed envelopes for reusable context, handoffs, and stored project memory when a later turn will actually consume them
-- prefer readable minimal handoffs over opaque symbolic envelopes in live Codex flows when they benchmark better
-- keep final work summaries simplified but detailed: what was done, why it was done, key verification, material remaining risk only
+- prefer the next relevant tool action before any outward text
+- do not send acknowledgements, commentary, or status text before, between, or during tool calls
+- do not narrate every repo exploration, search, or implementation step
+- finish the current tool loop before replying unless blocked
+- keep final answers short, direct, and normal-sounding
+- include verification, blockers, and risks only when they materially help the user
 - keep code, commands, errors, paths, and other technical atoms exact
 
 ## Goals
 
-- Shrink token count hard where live Codex usage actually improves.
+- Shrink token count where live usage actually improves.
+- Keep the agent readable and professional.
+- Prefer execution-first behavior.
+- Avoid unnecessary narration.
 - Preserve actionable meaning.
 - Preserve technical atoms exactly.
 - Keep the result decodable across turns.
-- Prefer execution-first behavior.
-- Prefer terse outward communication.
-- Defer explanation and recap until the end unless blocked.
 - Favor formats that tokenize well for GPT-5.4 style models.
 
 ## Hard Rules
@@ -44,32 +35,33 @@ Compressoor still favors terse execution mode during explicit use:
 - Preserve exact text for code blocks, inline code, commands, URLs, file paths, env vars, dates, versions, identifiers, and quoted errors.
 - Never compress by inventing a secret language with no schema.
 - Never store private chain-of-thought or speculative reasoning as if it were fact.
-- Never send an optional progress message before a tool call when a tool can materially advance the task.
-- Never send a human-readable pre-tool status message when a tool can materially advance the task.
-- Never send any message before the current tool loop is complete.
-- Never send acknowledgements, commentary, or status text before, between, or during tool calls.
-- Never interrupt an active tool-gathering or tool-execution loop with plaintext status.
-- Never force step-by-step narration when a shorter status or direct answer is enough.
-- Never send a progress update.
-- Never send plaintext progress updates.
-- Never hand-write a fake packed status for live progress.
-- Never bypass compressoor for reusable memory or handoffs.
-- Never expand summaries into human-readable play-by-play.
-- Never turn final summaries into long recaps when a simplified but detailed close-out is sufficient.
+- Never turn concision into caveman speech.
+- Never send a progress update before the current tool loop is complete.
+- Never force step-by-step narration when a shorter direct answer is enough.
+- Never let status text outgrow the work itself.
+- Never hand-write fake packed status for live progress.
 - When uncertain, choose lower compression and higher fidelity.
 
-## Workflow
+## When to use packing
+
+Use packing when reusable context will likely appear again:
+
+- durable handoffs
+- memory notes
+- review findings
+- constraint summaries
+- benchmark prompts
+
+Do not force packing into every reply. If a normal short answer is already cheaper and clearer, use the normal short answer.
+
+## Packing workflow
 
 1. Extract protected atoms that must survive byte-for-byte.
-2. Normalize prose:
-   - remove filler
-   - collapse hedging
-   - deduplicate repeated constraints
-   - convert paragraphs into explicit state
-3. Pack the result using `CCM1` from `references/protocol.md`.
-4. For live Codex reuse, prefer the smallest readable handoff that preserves the needed facts.
-5. Decode the packed state into an action plan and do the work first.
-6. If the packed output will be reused later, immediately unpack it mentally and verify that no instruction, decision, or blocker was lost.
+2. Remove filler, hedging, repetition, and duplicated constraints.
+3. Convert prose into explicit state.
+4. Pack the result using `CCM1` from `references/protocol.md` when durable structure helps.
+5. For live reuse, prefer the smallest readable handoff that preserves the needed facts.
+6. Verify that no instruction, decision, or blocker was lost.
 7. Benchmark candidate formats, not just raw packed length.
 
 ## Compression Levels
@@ -145,21 +137,17 @@ When using compressed memory in real work:
 
 ## Agent Behavior Defaults
 
-- These defaults are mandatory for all agents and sub-agents operating with compressoor enabled.
+- These defaults apply to all agents and sub-agents operating with compressoor enabled.
 - Work first, summarize later.
-- Call tools silently whenever tools can advance the task.
-- Tool calls first. If a tool can advance the task, take that tool action before any message.
-- Do not send a human-readable status message before a tool call when the tool can advance the task.
-- Never send any message before the current tool loop is complete.
-- Never send acknowledgements, commentary, or status text before, between, or during tool calls.
-- When multiple tool calls are needed to gather or apply the next chunk of work, complete that tool loop before sending explanation.
-- Do not emit progress updates.
+- Tool calls first when tools materially advance the task.
+- Do not send status text before or during the current tool loop.
+- Do not narrate obvious process.
+- During a tool loop, interrupt only for blockers.
 - If context will be reused across turns, store it in `CCM1` or a compact envelope instead of verbose prose.
-- After packing reusable context, store the encoded context, then stop carrying the verbose version forward unless exact wording is operationally required.
-- After packing reusable context, discard the verbose source and retain the packed state unless exact wording is operationally required.
-- Keep final close-out simplified but detailed.
-- If a reply can be one sentence without losing meaning, use one sentence.
-- If the user asks for depth, expand from the packed state instead of improvising a long answer.
+- After packing reusable context, stop carrying the verbose version forward unless exact wording is operationally required.
+- Keep final close-out concise but complete.
+- If a reply can be one or two sentences without losing meaning, use one or two sentences.
+- If the user asks for depth, expand deliberately instead of improvising a long answer.
 
 ## Final Summary Style
 
@@ -167,7 +155,7 @@ When using compressed memory in real work:
 - Include verification only if it materially supports the result.
 - Include remaining risk only if it changes next steps.
 - Skip exhaustive edit inventories unless requested.
-- Prefer a simplified but detailed close-out over a narrative recap.
+- Prefer a concise professional close-out over a narrative recap.
 
 ## Codex-Specific Heuristics
 

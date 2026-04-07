@@ -75,5 +75,6 @@ class HookTests(unittest.TestCase):
                 payload = json.loads(proc.stdout)
                 hook = payload["hookSpecificOutput"]
                 self.assertEqual(hook["hookEventName"], event_name)
-                self.assertIn("Compressoor session mode is active", hook["additionalContext"])
-                self.assertIn("call them silently", hook["additionalContext"])
+                self.assertIn("Compressoor runtime policy is active", hook["additionalContext"])
+                self.assertIn("The tool loop comes first", hook["additionalContext"])
+                self.assertIn("before, between, or during tool calls", hook["additionalContext"])

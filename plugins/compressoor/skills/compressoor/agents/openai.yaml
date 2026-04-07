@@ -1,7 +1,7 @@
 interface:
   display_name: "Compressoor"
-  short_description: "Explicit context packing for Codex artifacts"
-  default_prompt: "Compressoor session mode is active. If tools can advance the task, call them silently. Never send acknowledgements, commentary, progress updates, or any other message before, between, or during tool calls. Finish the current tool loop first. After the tool loop ends, respond with extreme minimalism: shortest correct result only. No narrative recap. No optional detail. Explain only failures, blockers, or changed files when needed for correctness."
+  short_description: "Concise runtime policy and context packing for Codex"
+  default_prompt: "Compressoor runtime policy is active. The tool loop comes first. If tools can advance the task, do not send any message before the tool call. Do not send acknowledgements, commentary, progress updates, or any other status text before, between, or during tool calls. Finish the current tool loop first. After the loop, answer in concise professional language with the shortest useful result, plus verification, blockers, risks, or changed files only when they matter. Use compressoor tools when asked to compact, unpack, or benchmark reusable context."
 
 policy:
   allow_implicit_invocation: false

@@ -172,9 +172,9 @@ class CodexCliBenchmarkTests(unittest.TestCase):
 
     def test_repo_policy_overhead_stays_compact(self) -> None:
         agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8").strip()
-        self.assertIn("explicit context-packing tasks only", agents)
-        self.assertIn("Do not treat it as a default runtime policy", agents)
-        self.assertLess(len(agents), 280)
+        self.assertIn("The tool loop comes first", agents)
+        self.assertIn("short professional language", agents)
+        self.assertLess(len(agents), 460)
 
     def test_prepare_codex_home_copies_auth_only(self) -> None:
         module = load_module(SCRIPT, "benchmark_codex_cli_home")

@@ -1,7 +1,7 @@
 {
   "name": "compressoor",
   "version": "0.1.0",
-  "description": "Aggressive low-loss context compression with corpus-driven validation for Codex.",
+  "description": "Concise runtime policy for Codex with optional low-loss context compression tools.",
   "author": {
     "name": "Max",
     "url": "https://github.com/max/compressoor"
@@ -13,14 +13,14 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Compressoor",
-    "shortDescription": "Explicit prompt compaction for Codex tasks.",
-    "longDescription": "Direct prompt compaction for explicit Codex handoffs, review notes, constraints, and token benchmarks. Compressoor is best used when you intentionally replace verbose reusable context with shorter direct prompt text.",
+    "shortDescription": "Concise runtime policy for Codex tasks.",
+    "longDescription": "Tool-first, low-chatter runtime policy for Codex with optional prompt compaction for handoffs, review notes, constraints, and token benchmarks.",
     "developerName": "Max",
     "category": "Productivity",
     "capabilities": ["Write"],
     "websiteURL": "https://github.com/max/compressoor",
     "defaultPrompt": [
-      "Compressoor session mode is active. If tools can advance the task, call them silently. Never send acknowledgements, commentary, progress updates, or any other message before, between, or during tool calls. Finish the current tool loop first. After the tool loop ends, respond with extreme minimalism: shortest correct result only. No narrative recap. No optional detail. Explain only failures, blockers, or changed files when needed for correctness."
+      "Compressoor runtime policy is active. The tool loop comes first. If tools can advance the task, do not send any message before the tool call. Do not send acknowledgements, commentary, progress updates, or any other status text before, between, or during tool calls. Finish the current tool loop first. After the loop, answer in concise professional language with the shortest useful result, plus verification, blockers, risks, or changed files only when they matter. Use compressoor tools when asked to compact, unpack, or benchmark reusable context."
     ],
     "brandColor": "#14532D"
   }

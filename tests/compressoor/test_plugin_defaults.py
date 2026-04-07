@@ -26,19 +26,21 @@ INSTALLER_PATHS = [
 
 
 class PluginDefaultsTests(unittest.TestCase):
-    def test_default_prompt_is_explicit_only(self) -> None:
+    def test_default_prompt_enforces_silent_tool_loops_and_short_professional_results(self) -> None:
         payload = json.loads(PLUGIN_JSON.read_text(encoding="utf-8"))
         prompts = payload["interface"]["defaultPrompt"]
         self.assertEqual(len(prompts), 1)
         prompt = prompts[0]
-        self.assertIn("Compressoor session mode is active", prompt)
-        self.assertIn("call them silently", prompt)
-        self.assertIn("Never send acknowledgements, commentary, progress updates", prompt)
+        self.assertIn("Compressoor runtime policy is active", prompt)
+        self.assertIn("The tool loop comes first", prompt)
+        self.assertIn("do not send any message before the tool call", prompt)
+        self.assertIn("Do not send acknowledgements, commentary, progress updates", prompt)
         self.assertIn("before, between, or during tool calls", prompt)
         self.assertIn("Finish the current tool loop first", prompt)
-        self.assertIn("extreme minimalism", prompt)
-        self.assertIn("Explain only failures, blockers, or changed files", prompt)
-        self.assertLess(len(prompt), 620)
+        self.assertIn("concise professional language", prompt)
+        self.assertIn("shortest useful result", prompt)
+        self.assertIn("changed files only when they matter", prompt)
+        self.assertLess(len(prompt), 760)
 
     def test_skill_docs_require_tool_first_and_encoded_context_storage(self) -> None:
         skill_paths = [
@@ -48,38 +50,32 @@ class PluginDefaultsTests(unittest.TestCase):
         for path in skill_paths:
             with self.subTest(path=path):
                 text = path.read_text(encoding="utf-8")
-                self.assertIn("mandatory for all agents and sub-agents operating with compressoor enabled", text)
-                self.assertIn("prefer taking the next relevant tool action before sending any optional outward message", text)
-                self.assertIn("Never send an optional progress message before a tool call when a tool can materially advance the task.", text)
-                self.assertIn("Never send a human-readable pre-tool status message when a tool can materially advance the task.", text)
-                self.assertIn("Never send any message before the current tool loop is complete.", text)
-                self.assertIn("Never send acknowledgements, commentary, or status text before, between, or during tool calls.", text)
-                self.assertIn("Never interrupt an active tool-gathering or tool-execution loop with plaintext status.", text)
-                self.assertIn("Call tools silently whenever tools can advance the task.", text)
-                self.assertIn("Tool calls first. If a tool can advance the task, take that tool action before any message.", text)
-                self.assertIn("Do not send a human-readable status message before a tool call when the tool can advance the task.", text)
-                self.assertIn("complete that tool loop before sending explanation", text)
-                self.assertIn("Do not emit progress updates.", text)
-                self.assertIn("Never bypass compressoor for reusable memory or handoffs.", text)
-                self.assertIn("store the encoded context", text)
+                self.assertIn("runtime policy first and a packing toolset second", text)
+                self.assertIn("prefer the next relevant tool action before any outward text", text)
+                self.assertIn("do not send acknowledgements, commentary, or status text before, between, or during tool calls", text)
+                self.assertIn("finish the current tool loop before replying unless blocked", text)
+                self.assertIn("Never send a progress update before the current tool loop is complete.", text)
+                self.assertIn("Never turn concision into caveman speech.", text)
+                self.assertIn("store it in `CCM1` or a compact envelope", text)
 
-    def test_agent_yaml_prompts_are_explicit_only(self) -> None:
+    def test_agent_yaml_prompts_define_runtime_policy(self) -> None:
         for path in AGENT_YAML_PATHS:
             with self.subTest(path=path):
                 text = path.read_text(encoding="utf-8")
-                self.assertIn("Compressoor session mode is active", text)
-                self.assertIn("call them silently", text)
-                self.assertIn("Never send acknowledgements, commentary, progress updates", text)
+                self.assertIn("Compressoor runtime policy is active", text)
+                self.assertIn("The tool loop comes first", text)
+                self.assertIn("do not send any message before the tool call", text)
+                self.assertIn("Do not send acknowledgements, commentary, progress updates", text)
                 self.assertIn("before, between, or during tool calls", text)
                 self.assertIn("Finish the current tool loop first", text)
-                self.assertIn("extreme minimalism", text)
-                self.assertIn("Explain only failures, blockers, or changed files", text)
+                self.assertIn("concise professional language", text)
+                self.assertIn("shortest useful result", text)
                 self.assertIn("allow_implicit_invocation: false", text)
 
-    def test_claude_plugin_manifest_is_present_and_explicit_only(self) -> None:
+    def test_claude_plugin_manifest_is_present_and_runtime_focused(self) -> None:
         payload = json.loads(CLAUDE_PLUGIN_JSON.read_text(encoding="utf-8"))
         self.assertEqual(payload["name"], "compressoor")
-        self.assertIn("Explicit-use context compaction", payload["description"])
+        self.assertIn("Concise runtime policy", payload["description"])
         self.assertEqual(payload["author"]["name"], "Max")
 
     def test_claude_marketplace_points_at_repo_root(self) -> None:
@@ -90,36 +86,34 @@ class PluginDefaultsTests(unittest.TestCase):
         self.assertEqual(plugin["name"], "compressoor")
         self.assertEqual(plugin["source"], "./")
         self.assertEqual(plugin["category"], "productivity")
-        self.assertIn("default runtime policy", plugin["description"])
+        self.assertIn("concise and professional by default", plugin["description"])
 
-    def test_claude_subagent_is_explicit_only(self) -> None:
+    def test_claude_subagent_keeps_tool_loops_silent_and_post_loop_output_brief(self) -> None:
         text = CLAUDE_AGENT.read_text(encoding="utf-8")
-        self.assertIn("Explicit-use context compaction specialist", text)
-        self.assertIn("Do not treat it as a default runtime policy", text)
-        self.assertIn("call tools silently whenever tools can advance the task", text)
-        self.assertIn("never send any message before the current tool loop is complete", text)
-        self.assertIn("never send acknowledgements, commentary, or status text before, between, or during tool calls", text)
+        self.assertIn("Concise runtime policy specialist", text)
+        self.assertIn("The tool loop comes first", text)
+        self.assertIn("never send acknowledgements or routine status messages before or during tool loops", text)
+        self.assertIn("finish the current tool loop before replying unless blocked", text)
         self.assertIn("packed `CCM1` block", text)
-        self.assertIn("say only what changed, or note failures/blockers when needed", text)
-        self.assertIn("Do not turn this subagent into a session-wide voice", text)
+        self.assertIn("say what changed, plus failures, blockers, or risks when needed", text)
+        self.assertIn("Do not turn concision into caveman speech", text)
 
-    def test_claude_command_routes_into_explicit_compaction(self) -> None:
+    def test_claude_command_routes_into_concise_runtime_and_explicit_compaction(self) -> None:
         text = CLAUDE_COMMAND.read_text(encoding="utf-8")
         self.assertIn("Use the `compressoor` subagent", text)
-        self.assertIn("Compressoor is explicit-use only", text)
+        self.assertIn("concise, professional, and tool-first", text)
         self.assertIn("pack, unpack, benchmark, or rewrite durable reusable context", text)
-        self.assertIn("call tools silently whenever tools can advance the task", text)
-        self.assertIn("never send any message before the current tool loop is complete", text)
-        self.assertIn("never send acknowledgements, commentary, or status text before, between, or during tool calls", text)
-        self.assertIn("return the shortest correct result only", text)
-        self.assertIn("explain only failures, blockers, or changed files when needed", text)
+        self.assertIn("do not send acknowledgements, commentary, or status text before, between, or during tool calls", text)
+        self.assertIn("finish the current tool loop before replying unless blocked", text)
+        self.assertIn("return a brief direct result", text)
+        self.assertIn("changed files, or risks when needed", text)
         self.assertIn("User arguments: $ARGUMENTS", text)
 
     def test_launchers_exist_for_session_prompt_bootstrap(self) -> None:
         for path in LAUNCHER_PATHS:
             with self.subTest(path=path):
                 text = path.read_text(encoding="utf-8")
-                self.assertIn("Launch interactive Codex with an explicit compressoor system prompt.", text)
+                self.assertIn("Launch interactive Codex with the compressoor runtime policy prompt.", text)
                 self.assertIn("build_bootstrap", text)
                 self.assertIn("has_compressoor_policy", text)
                 self.assertIn("os.execvp", text)
@@ -128,7 +122,7 @@ class PluginDefaultsTests(unittest.TestCase):
         for path in INSTALLER_PATHS:
             with self.subTest(path=path):
                 text = path.read_text(encoding="utf-8")
-                self.assertIn("Install compressoor's explicit-use notes into AGENTS and hooks files.", text)
+                self.assertIn("Install compressoor's concise runtime policy into AGENTS and hooks files.", text)
                 self.assertIn("render_hooks_config", text)
                 self.assertIn("SessionStart", text)
                 self.assertIn("SessionResume", text)

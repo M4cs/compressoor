@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Launch interactive Codex with an explicit compressoor system prompt."""
+"""Launch interactive Codex with the compressoor runtime policy prompt."""
 
 from __future__ import annotations
 
@@ -55,9 +55,9 @@ def has_compressoor_policy() -> bool:
         return True
     markers = (
         "$compressoor",
-        "Compressoor session mode is active",
-        "explicit context-packing tasks only",
-        "call them silently",
+        "Compressoor runtime policy is active",
+        "concise runtime policy",
+        "tool-first",
     )
     candidates = [
         ROOT / "AGENTS.md",

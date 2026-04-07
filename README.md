@@ -1,29 +1,25 @@
 # compressoor
 
-Compressoor is an explicit-use context compactor for Codex and Claude Code.
+Compressoor is a concise runtime policy for Codex and Claude Code.
 
-It is meant for cases where you intentionally want to shrink durable context such as handoffs, review notes, constraint summaries, or benchmark prompts. The packaged Codex setup also boots a tool-first low-chatter session policy through session start/resume hooks.
+Its main job is to cut token overhead without making the agent sound unnatural. The style target is tool-first execution with no pre-tool chatter, no mid-loop chatter, and short professional output after the loop. It also includes a small set of tools for compressing durable context such as handoffs, review notes, constraint summaries, and benchmark prompts.
 
 ## What it is
 
-- A Codex skill and plugin plus a Claude Code plugin for explicit prompt compaction
-- A small set of scripts for direct prompt compaction, rendering short live context, and benchmarking compact context
+- A Codex skill and plugin plus a Claude Code plugin for concise runtime behavior
+- A small set of scripts for prompt compaction, rendering short live context, and benchmarking token savings
 - Session bootstrap hooks and an optional launcher for Codex
 
-## What it is not
+## Style target
 
-- Not an always-on repo policy
-- Not a hidden background hook system
-- Not something to invoke on every prompt by default
+- tool-first
+- no pre-tool or mid-loop status text
+- brief and professional
+- no acknowledgements or filler
+- no step-by-step narration unless it changes the plan
+- short final answers with verification, blockers, and risks only when they matter
 
-The current project setup is intentionally simple:
-
-- `AGENTS.md` states that compressoor is for explicit context-packing tasks only
-- the plugin `defaultPrompt` and agent prompts enforce tool-first minimal output
-- installed hooks bootstrap compressoor session mode on `SessionStart` and `SessionResume`
-- the session policy suppresses commentary/progress during tool loops
-- post-tool answers are intentionally tiny: shortest correct result, with explanation only for failures, blockers, or changed files when needed
-- the launcher adds the compressoor session prompt only when no compressoor policy or active compressoor hooks are already present
+This is closer to "do the work first, then say less and keep it normal" than to character-role compression. The goal is lower token use without caveman speech.
 
 ## Install
 
@@ -47,7 +43,7 @@ The Claude plugin ships:
 - [`.claude/agents/compressoor.md`](/Users/max/compressoor/.claude/agents/compressoor.md)
 - [`.claude/commands/compressoor.md`](/Users/max/compressoor/.claude/commands/compressoor.md)
 
-### Standalone skill / explicit-use notes
+### Standalone runtime policy
 
 ```bash
 python3 skills/compressoor/scripts/install_codex_compressoor.py --force
@@ -55,14 +51,15 @@ python3 skills/compressoor/scripts/install_codex_compressoor.py --force
 
 This writes:
 
-- `~/.codex/AGENTS.md` with explicit-use guidance
-- `~/.codex/hooks.json` with `SessionStart` and `SessionResume` bootstrap hooks
+- `~/.codex/AGENTS.md` with compressoor runtime guidance
+- `~/.codex/hooks.json` with `SessionStart` and `SessionResume` runtime-policy hooks
 
-The installed hooks inject compressoor session policy automatically on session start and resume. That policy is meant to reduce token use by:
+The installed hooks inject compressoor policy automatically on session start and resume. That policy is meant to reduce token use by:
 
-- calling tools silently whenever tools can advance the task
-- suppressing acknowledgements, commentary, and progress updates during tool loops
-- keeping post-tool answers extremely small
+- preferring tools before any outward text
+- suppressing acknowledgements and routine narration before and during tool loops
+- keeping outward answers short and professional
+- using compaction tools only when reusable context actually needs shortening
 
 If you also want the same note in a project `AGENTS.md`:
 
@@ -73,7 +70,7 @@ python3 skills/compressoor/scripts/install_codex_compressoor.py --force \
 
 ## Launch Codex With Compressoor
 
-Use the launcher if you want a Codex session bootstrapped with the explicit compressoor policy:
+Use the launcher if you want a Codex session bootstrapped with the compressoor runtime policy:
 
 ```bash
 python3 skills/compressoor/scripts/launch_codex_compressoor.py -- -C /path/to/repo
@@ -88,20 +85,21 @@ python3 skills/compressoor/scripts/launch_codex_compressoor.py --prompt "Review 
 
 If compressoor guidance is already present in repo or global `AGENTS.md`, or active compressoor hooks are already installed, the launcher does not prepend another bootstrap prompt.
 
-## Session Behavior
+## Runtime Behavior
 
-When compressoor session mode is active, the intended behavior is:
+When compressoor is active, the intended behavior is:
 
 - tools first
-- no commentary, acknowledgements, or progress updates before or during tool loops
-- shortest correct result after the tool loop
-- explain only failures, blockers, or changed files when needed
+- no acknowledgements, commentary, or progress updates before or during tool loops
+- concise status only after the loop, unless blocked
+- short final answers after the tool loop
+- explain failures, blockers, verification, or changed files when needed
 
-This stricter mode is aimed at keeping token overhead small in long tool-driven sessions.
+This mode is aimed at keeping token overhead small in long tool-driven sessions while still sounding like a normal competent assistant after the tool loop ends.
 
-## Use Cases
+## Context Tools
 
-Use compressoor when you explicitly want to:
+Compressoor also includes explicit-use context tools when you want to:
 
 - pack a handoff
 - compress a memory note
@@ -115,7 +113,7 @@ In practice, the simplest workflow is:
 2. Compact it once.
 3. Reuse the shorter version in later prompts instead of resending the original prose.
 
-In Claude Code, the explicit entry point is `/compressoor ...`. In Codex, use the installed plugin/skill explicitly.
+In Claude Code, the explicit entry point is `/compressoor ...`. In Codex, use the installed plugin or scripts directly when you want packing behavior.
 
 ## Benchmarks
 
@@ -125,7 +123,7 @@ Run the direct prompt-compaction benchmark:
 python3 benchmarks/benchmark_explicit_packed_context.py
 ```
 
-This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings. It includes:
+This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings for the compaction helpers. It includes:
 
 - `compact`: full compacted form
 - `compact_min`: shorter follow-up-oriented form
@@ -143,14 +141,14 @@ There is also a Codex CLI integration benchmark:
 python3 benchmarks/benchmark_codex_cli.py --limit 5
 ```
 
-Use that one as a runtime/integration check, not as the primary savings benchmark.
+Use that one as a runtime and integration check, not as the primary savings benchmark.
 
 ## Main Files
 
-- [`skills/compressoor/SKILL.md`](/Users/max/compressoor/skills/compressoor/SKILL.md): explicit-use skill behavior
+- [`skills/compressoor/SKILL.md`](/Users/max/compressoor/skills/compressoor/SKILL.md): runtime policy and compaction behavior
 - [`skills/compressoor/scripts/compact_prompt.py`](/Users/max/compressoor/skills/compressoor/scripts/compact_prompt.py): direct prompt compactor
 - [`skills/compressoor/scripts/render_live_context.py`](/Users/max/compressoor/skills/compressoor/scripts/render_live_context.py): short live-context renderer
-- [`skills/compressoor/scripts/install_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/install_codex_compressoor.py): installer for explicit-use notes
+- [`skills/compressoor/scripts/install_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/install_codex_compressoor.py): installer for runtime-policy notes
 - [`skills/compressoor/scripts/launch_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/launch_codex_compressoor.py): session launcher
 - [`benchmarks/benchmark_explicit_packed_context.py`](/Users/max/compressoor/benchmarks/benchmark_explicit_packed_context.py): main benchmark runner
 
