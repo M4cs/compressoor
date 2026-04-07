@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import importlib.util
 import json
+import os
 import sys
 import tempfile
 import unittest
@@ -169,6 +170,15 @@ class CodexCliBenchmarkTests(unittest.TestCase):
             self.assertFalse((workspace / "AGENTS.md").exists())
             self.assertFalse((workspace / ".codex" / "hooks.json").exists())
             self.assertTrue((workspace / "README.md").exists())
+
+    def test_prepare_workspace_preserves_dangling_symlinks(self) -> None:
+        module = load_module(SCRIPT, "benchmark_codex_cli_workspace_symlink")
+        with tempfile.TemporaryDirectory() as td:
+            workspace = Path(td) / "enabled"
+            module.prepare_workspace(workspace, enabled=True)
+            copied = workspace / "plugins" / "compressoor" / "1.0.0"
+            self.assertTrue(copied.is_symlink())
+            self.assertEqual(os.readlink(copied), "/Users/max/.codex/cache/local/compressoor/1.0.0/")
 
     def test_repo_policy_overhead_stays_compact(self) -> None:
         agents = (ROOT / "AGENTS.md").read_text(encoding="utf-8").strip()

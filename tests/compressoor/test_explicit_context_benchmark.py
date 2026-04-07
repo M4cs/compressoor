@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import importlib.util
+import os
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -115,6 +117,15 @@ class ExplicitContextBenchmarkTests(unittest.TestCase):
         second = module.compact_text(prior)
         self.assertEqual(first, second)
         self.assertEqual(module.compact_text.cache_info().hits, 1)
+
+    def test_prepare_clean_workspace_preserves_dangling_symlinks(self) -> None:
+        module = load_module(SCRIPT, "benchmark_explicit_context_workspace")
+        with tempfile.TemporaryDirectory() as td:
+            dest = Path(td) / "workspace"
+            module.prepare_clean_workspace(dest)
+            copied = dest / "plugins" / "compressoor" / "1.0.0"
+            self.assertTrue(copied.is_symlink())
+            self.assertEqual(os.readlink(copied), "/Users/max/.codex/cache/local/compressoor/1.0.0/")
 
 
 if __name__ == "__main__":

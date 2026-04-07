@@ -4,6 +4,8 @@ Compressoor is a concise runtime policy for Codex and Claude Code.
 
 Its main job is to cut token overhead without making the agent sound unnatural. The style target is tool-first execution with no pre-tool chatter, no mid-loop chatter, no plan/thinking preambles before the first tool call, and short professional output after the loop. It also includes a small set of tools for compressing durable context such as handoffs, review notes, constraint summaries, and benchmark prompts.
 
+[Install](#install) • [Benchmarks](#benchmarks) • [Runtime Behavior](#runtime-behavior) • [Context Tools](#context-tools) • [Main Files](#main-files)
+
 ## What it is
 
 - A Codex skill and plugin plus a Claude Code plugin for concise runtime behavior
@@ -151,16 +153,78 @@ In Claude Code, the explicit entry point is `/compressoor ...`. In Codex, use th
 
 ## Benchmarks
 
+Real benchmark results, using the same public prompt-set shape as the [Caveman README](https://github.com/JuliusBrussee/caveman#benchmarks) where that comparison is useful:
+
+| Benchmark | What it measures | Cases | Result |
+|------|------|------:|------:|
+| Direct prompt compaction: `compact` | Verbose reusable context vs packed reusable context | 15 | 35.8% average token reduction |
+| Direct prompt compaction: `compact_min` | Verbose reusable context vs shortest follow-up-safe packed form | 15 | 46.0% average token reduction |
+| Live Codex run: `compact` | One live Codex A/B run on the same corpus | 1 | 0.1% total-token reduction |
+| Live Codex run: `compact_min` | One live Codex A/B run on the same corpus | 1 | 0.1% total-token reduction |
+
+Compressoor and Caveman optimize different parts of the loop, so the headline numbers are not directly comparable:
+
+| Tool | Primary target | Public benchmark signal |
+|------|------|------:|
+| [Caveman](https://github.com/JuliusBrussee/caveman) | Output token reduction by changing response style | 65% average output-token reduction in its README |
+| Compressoor `compact` | Reusable prompt and handoff compaction | 35.8% average prompt-token reduction on 15 cases |
+| Compressoor `compact_min` | More aggressive follow-up-oriented prompt compaction | 46.0% average prompt-token reduction on 15 cases |
+
+> [!IMPORTANT]
+> Caveman's published numbers are output-token benchmarks. Compressoor's strongest measured result so far is prompt compaction on reusable context. Those are different workloads and should not be treated as like-for-like savings.
+
+### Direct Prompt Compaction
+
 Run the direct prompt-compaction benchmark:
 
 ```bash
 python3 benchmarks/benchmark_explicit_packed_context.py
 ```
 
-This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings for the compaction helpers. It includes:
+This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings for the compaction helpers. Current results from [`benchmarks/caveman_style_cases.jsonl`](benchmarks/caveman_style_cases.jsonl):
 
 - `compact`: full compacted form
 - `compact_min`: shorter follow-up-oriented form
+
+| Task | Verbose | `compact` | Saved | `compact_min` | Saved |
+|------|-------:|----------:|------:|--------------:|------:|
+| Explain React re-render bug | 55 | 40 | 27.3% | 33 | 40.0% |
+| Fix auth middleware token expiry | 70 | 41 | 41.4% | 33 | 52.9% |
+| Set up PostgreSQL connection pool | 66 | 36 | 45.5% | 36 | 45.5% |
+| Explain git rebase vs merge | 55 | 38 | 30.9% | 30 | 45.5% |
+| Review PR for security issues | 67 | 43 | 35.8% | 35 | 47.8% |
+| Refactor callback to async/await | 52 | 36 | 30.8% | 31 | 40.4% |
+| Architecture: microservices vs monolith | 55 | 37 | 32.7% | 37 | 32.7% |
+| Docker multi-stage build | 52 | 37 | 28.8% | 31 | 40.4% |
+| Debug PostgreSQL race condition | 78 | 45 | 42.3% | 32 | 59.0% |
+| Implement React error boundary | 56 | 37 | 33.9% | 31 | 44.6% |
+| Refactor payments retry helper | 60 | 40 | 33.3% | 35 | 41.7% |
+| Update navigation layout guardrails | 55 | 32 | 41.8% | 32 | 41.8% |
+| CSV parser handoff | 78 | 47 | 39.7% | 31 | 60.3% |
+| Cache invalidation review | 68 | 44 | 35.3% | 36 | 47.1% |
+| Bun repo rules | 54 | 38 | 29.6% | 34 | 37.0% |
+| **Average** | **61.4** | **39.4** | **35.8%** | **33.1** | **46.0%** |
+
+Range:
+
+- `compact`: 27.3% to 45.5%
+- `compact_min`: 32.7% to 60.3%
+
+### Live Codex Run
+
+Live Codex usage is much noisier because fixed per-run overhead dominates short prompts. Current live result so far:
+
+| Task | Verbose total | `compact` total | Saved | `compact_min` total | Saved |
+|------|--------------:|----------------:|------:|--------------------:|------:|
+| Explain React re-render bug | 29,900 | 29,870 | 0.1% | 29,875 | 0.1% |
+
+The same live run showed no input-token savings on that single case because Codex session overhead was much larger than the prompt delta:
+
+- verbose input: 29,598
+- `compact` input: 29,600
+- `compact_min` input: 29,606
+
+That makes the live result directionally useful, but not strong enough yet for a broader claim.
 
 To measure live Codex token usage for the same A/B prompts:
 
@@ -175,7 +239,7 @@ There is also a Codex CLI integration benchmark:
 python3 benchmarks/benchmark_codex_cli.py --limit 5
 ```
 
-Use that one as a runtime and integration check, not as the primary savings benchmark.
+Use that one as a runtime and integration check, not as the primary savings benchmark. A longer live Codex CLI session benchmark was started, then stopped to avoid burning more benchmark budget, so there is no aggregate session benchmark published here yet.
 
 ## Main Files
 

@@ -166,7 +166,7 @@ def add_benchmark_nonce(prompt: str, nonce: str) -> str:
 
 
 def prepare_clean_workspace(dest: Path) -> None:
-    shutil.copytree(ROOT, dest, dirs_exist_ok=True)
+    shutil.copytree(ROOT, dest, dirs_exist_ok=True, symlinks=True)
     for rel in ("AGENTS.md", ".codex/hooks.json"):
         path = dest / rel
         if path.exists():

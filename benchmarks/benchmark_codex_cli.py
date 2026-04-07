@@ -112,7 +112,7 @@ def load_scenarios(path: Path, limit: int) -> list[Scenario]:
 
 
 def prepare_workspace(dest: Path, enabled: bool) -> None:
-    shutil.copytree(ROOT, dest, dirs_exist_ok=True)
+    shutil.copytree(ROOT, dest, dirs_exist_ok=True, symlinks=True)
     if enabled:
         return
     agents_path = dest / REPO_AGENTS.relative_to(ROOT)
