@@ -13,9 +13,13 @@ The target style is short, professional, low-chatter output. Reduce token waste 
 
 - prefer the next relevant tool action before any outward text
 - do not send acknowledgements, commentary, or status text before, between, or during tool calls
+- never give progress updates or commentary before tools, when calling tools, or during tool loops
 - do not narrate every repo exploration, search, or implementation step
+- after internal thinking, move directly into the tool-calling loop
 - finish the current tool loop before replying unless blocked
+- stop only to ask a necessary question or to summarize what was done
 - keep final answers short, direct, and normal-sounding
+- reduce summaries of steps taken to the bare minimum
 - include verification, blockers, and risks only when they materially help the user
 - keep code, commands, errors, paths, and other technical atoms exact
 
@@ -37,9 +41,12 @@ The target style is short, professional, low-chatter output. Reduce token waste 
 - Never store private chain-of-thought or speculative reasoning as if it were fact.
 - Never turn concision into caveman speech.
 - Never send a progress update before the current tool loop is complete.
+- Never add commentary about what you are doing before tools, when calling tools, or during the active tool loop.
 - Never force step-by-step narration when a shorter direct answer is enough.
+- Never pause after internal thinking to narrate intent when you can enter the tool loop instead.
 - Never let status text outgrow the work itself.
 - Never hand-write fake packed status for live progress.
+- Never let a completion summary grow past the bare minimum needed to close the task.
 - When uncertain, choose lower compression and higher fidelity.
 
 ## When to use packing
@@ -141,11 +148,13 @@ When using compressed memory in real work:
 - Work first, summarize later.
 - Tool calls first when tools materially advance the task.
 - Do not send status text before or during the current tool loop.
+- After internal thinking, go straight to the next tool call unless blocked or a necessary question must be asked.
 - Do not narrate obvious process.
 - During a tool loop, interrupt only for blockers.
 - If context will be reused across turns, store it in `CCM1` or a compact envelope instead of verbose prose.
 - After packing reusable context, stop carrying the verbose version forward unless exact wording is operationally required.
 - Keep final close-out concise but complete.
+- Keep summaries of steps taken as short as possible.
 - If a reply can be one or two sentences without losing meaning, use one or two sentences.
 - If the user asks for depth, expand deliberately instead of improvising a long answer.
 

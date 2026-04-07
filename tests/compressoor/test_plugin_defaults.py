@@ -36,11 +36,14 @@ class PluginDefaultsTests(unittest.TestCase):
         self.assertIn("do not send any message before the tool call", prompt)
         self.assertIn("Do not send acknowledgements, commentary, progress updates", prompt)
         self.assertIn("before, between, or during tool calls", prompt)
+        self.assertIn("After internal thinking, move directly into the tool-calling loop", prompt)
+        self.assertIn("minimal completion summary", prompt)
         self.assertIn("Finish the current tool loop first", prompt)
         self.assertIn("concise professional language", prompt)
         self.assertIn("shortest useful result", prompt)
+        self.assertIn("task summary to the bare minimum", prompt)
         self.assertIn("changed files only when they matter", prompt)
-        self.assertLess(len(prompt), 760)
+        self.assertLess(len(prompt), 980)
 
     def test_skill_docs_require_tool_first_and_encoded_context_storage(self) -> None:
         skill_paths = [
@@ -53,9 +56,14 @@ class PluginDefaultsTests(unittest.TestCase):
                 self.assertIn("runtime policy first and a packing toolset second", text)
                 self.assertIn("prefer the next relevant tool action before any outward text", text)
                 self.assertIn("do not send acknowledgements, commentary, or status text before, between, or during tool calls", text)
+                self.assertIn("never give progress updates or commentary before tools, when calling tools, or during tool loops", text)
+                self.assertIn("after internal thinking, move directly into the tool-calling loop", text)
                 self.assertIn("finish the current tool loop before replying unless blocked", text)
+                self.assertIn("stop only to ask a necessary question or to summarize what was done", text)
                 self.assertIn("Never send a progress update before the current tool loop is complete.", text)
+                self.assertIn("Never pause after internal thinking to narrate intent when you can enter the tool loop instead.", text)
                 self.assertIn("Never turn concision into caveman speech.", text)
+                self.assertIn("Keep summaries of steps taken as short as possible.", text)
                 self.assertIn("store it in `CCM1` or a compact envelope", text)
 
     def test_agent_yaml_prompts_define_runtime_policy(self) -> None:
@@ -67,9 +75,12 @@ class PluginDefaultsTests(unittest.TestCase):
                 self.assertIn("do not send any message before the tool call", text)
                 self.assertIn("Do not send acknowledgements, commentary, progress updates", text)
                 self.assertIn("before, between, or during tool calls", text)
+                self.assertIn("After internal thinking, move directly into the tool-calling loop", text)
+                self.assertIn("minimal completion summary", text)
                 self.assertIn("Finish the current tool loop first", text)
                 self.assertIn("concise professional language", text)
                 self.assertIn("shortest useful result", text)
+                self.assertIn("task summary to the bare minimum", text)
                 self.assertIn("allow_implicit_invocation: false", text)
 
     def test_claude_plugin_manifest_is_present_and_runtime_focused(self) -> None:
@@ -93,9 +104,11 @@ class PluginDefaultsTests(unittest.TestCase):
         self.assertIn("Concise runtime policy specialist", text)
         self.assertIn("The tool loop comes first", text)
         self.assertIn("never send acknowledgements or routine status messages before or during tool loops", text)
+        self.assertIn("never give progress updates or commentary before tools, when calling tools, or during tool loops", text)
+        self.assertIn("after internal thinking, go straight to the next tool call unless blocked or a necessary question must be asked", text)
         self.assertIn("finish the current tool loop before replying unless blocked", text)
         self.assertIn("packed `CCM1` block", text)
-        self.assertIn("say what changed, plus failures, blockers, or risks when needed", text)
+        self.assertIn("say what changed, plus failures, blockers, or risks when needed, with the bare minimum summary", text)
         self.assertIn("Do not turn concision into caveman speech", text)
 
     def test_claude_command_routes_into_concise_runtime_and_explicit_compaction(self) -> None:
@@ -104,8 +117,11 @@ class PluginDefaultsTests(unittest.TestCase):
         self.assertIn("concise, professional, and tool-first", text)
         self.assertIn("pack, unpack, benchmark, or rewrite durable reusable context", text)
         self.assertIn("do not send acknowledgements, commentary, or status text before, between, or during tool calls", text)
+        self.assertIn("never give progress updates or commentary before tools, when calling tools, or during tool loops", text)
+        self.assertIn("after internal thinking, move directly into the tool-calling loop unless blocked or a necessary question must be asked", text)
         self.assertIn("finish the current tool loop before replying unless blocked", text)
         self.assertIn("return a brief direct result", text)
+        self.assertIn("keep any summary of steps taken to the bare minimum", text)
         self.assertIn("changed files, or risks when needed", text)
         self.assertIn("User arguments: $ARGUMENTS", text)
 
