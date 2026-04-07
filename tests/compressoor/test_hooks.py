@@ -41,11 +41,20 @@ class HookTests(unittest.TestCase):
         self.assertIn("SessionStart", hooks["hooks"])
         self.assertIn("SessionResume", hooks["hooks"])
 
+    def test_installer_renders_mandatory_agents_directive(self) -> None:
+        module = load_module(INSTALLER, "compressoor_installer_agents")
+        agents = module.render_global_agents()
+        self.assertIn("Compressoor mandatory session directive", agents)
+        self.assertIn("override normal conversational defaults", agents)
+        self.assertIn("Do not narrate what you are about to do.", agents)
+
     def test_installer_main_writes_agents_and_hooks_only(self) -> None:
         module = load_module(INSTALLER, "compressoor_installer_main")
         with tempfile.TemporaryDirectory() as td:
             agents = Path(td) / "AGENTS.md"
             hooks = Path(td) / "hooks.json"
+            marketplace = Path(td) / ".agents" / "plugins" / "marketplace.json"
+            plugin_dir = Path(td) / "plugins" / "compressoor"
             old_argv = __import__("sys").argv
             __import__("sys").argv = [
                 "install_codex_compressoor.py",
@@ -54,6 +63,12 @@ class HookTests(unittest.TestCase):
                 str(agents),
                 "--global-hooks",
                 str(hooks),
+                "--global-marketplace",
+                str(marketplace),
+                "--global-plugin-dir",
+                str(plugin_dir),
+                "--plugin-source",
+                str(ROOT / "plugins" / "compressoor"),
             ]
             try:
                 self.assertEqual(module.main(), 0)
@@ -61,6 +76,27 @@ class HookTests(unittest.TestCase):
                 __import__("sys").argv = old_argv
             self.assertTrue(agents.exists())
             self.assertTrue(hooks.exists())
+            self.assertTrue(marketplace.exists())
+            self.assertTrue(plugin_dir.is_symlink())
+
+    def test_installer_appends_existing_agents_instead_of_replacing(self) -> None:
+        module = load_module(INSTALLER, "compressoor_installer_merge")
+        with tempfile.TemporaryDirectory() as td:
+            agents = Path(td) / "AGENTS.md"
+            agents.write_text("Existing repo note.\n", encoding="utf-8")
+            changed = module.write_agents_text(agents, module.render_global_agents())
+            text = agents.read_text(encoding="utf-8")
+            self.assertTrue(changed)
+            self.assertIn("Existing repo note.", text)
+            self.assertIn("Compressoor mandatory session directive", text)
+
+    def test_installer_renders_global_marketplace_entry(self) -> None:
+        module = load_module(INSTALLER, "compressoor_installer_marketplace")
+        text = module.render_global_marketplace()
+        payload = json.loads(text)
+        self.assertEqual(payload["name"], "local-plugins")
+        self.assertEqual(payload["plugins"][0]["name"], "compressoor")
+        self.assertEqual(payload["plugins"][0]["source"]["path"], "./plugins/compressoor")
 
     def test_session_hook_scripts_emit_policy_context(self) -> None:
         for event_name, script in (("SessionStart", SESSION_START), ("SessionResume", SESSION_RESUME)):
@@ -75,6 +111,7 @@ class HookTests(unittest.TestCase):
                 payload = json.loads(proc.stdout)
                 hook = payload["hookSpecificOutput"]
                 self.assertEqual(hook["hookEventName"], event_name)
-                self.assertIn("Compressoor runtime policy is active", hook["additionalContext"])
+                self.assertIn("Compressoor mandatory session directive", hook["additionalContext"])
                 self.assertIn("The tool loop comes first", hook["additionalContext"])
                 self.assertIn("before, between, or during tool calls", hook["additionalContext"])
+                self.assertIn("Do not narrate what you are about to do.", hook["additionalContext"])

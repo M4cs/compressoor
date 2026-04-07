@@ -9,7 +9,7 @@ from pathlib import Path
 
 
 ROOT = Path(__file__).resolve().parents[5]
-POLICY = ROOT / "plugins" / "compressoor" / "skills" / "compressoor" / "policy" / "session_policy.txt"
+POLICY = ROOT / "plugins" / "compressoor" / "skills" / "compressoor" / "policy" / "session_injection.txt"
 
 
 def main() -> int:

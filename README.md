@@ -23,6 +23,23 @@ This is closer to "do the work first, then say less and keep it normal" than to 
 
 ## Install
 
+### Fast Install From GitHub
+
+If an agent or user only has the GitHub URL, this is the shortest Codex-friendly install path:
+
+```bash
+git clone https://github.com/max/compressoor.git ~/compressoor
+python3 ~/compressoor/skills/compressoor/scripts/install_codex_compressoor.py --force
+```
+
+If the repo is already cloned somewhere else, run the installer from that checkout instead.
+
+Suggested prompt for an agent:
+
+```text
+Clone https://github.com/max/compressoor to ~/compressoor if it is not already present, then run python3 ~/compressoor/skills/compressoor/scripts/install_codex_compressoor.py --force. After that, confirm that ~/.codex/AGENTS.md, ~/.codex/hooks.json, ~/.agents/plugins/marketplace.json, and ~/plugins/compressoor exist.
+```
+
 ### Codex Plugin
 
 Install the plugin from [`plugins/compressoor/.codex-plugin/plugin.json`](/Users/max/compressoor/plugins/compressoor/.codex-plugin/plugin.json).
@@ -53,13 +70,24 @@ This writes:
 
 - `~/.codex/AGENTS.md` with compressoor runtime guidance
 - `~/.codex/hooks.json` with `SessionStart` and `SessionResume` runtime-policy hooks
+- `~/.agents/plugins/marketplace.json` with a home-local `compressoor` marketplace entry
+- `~/plugins/compressoor` as a symlink to this repo's plugin directory
 
-The installed hooks inject compressoor policy automatically on session start and resume. That policy is meant to reduce token use by:
+The installed hooks inject a mandatory compressoor session directive automatically on session start and resume. That directive is meant to reduce token use by:
 
 - preferring tools before any outward text
 - suppressing acknowledgements and routine narration before and during tool loops
+- suppressing explanations of intent before tool calls
 - keeping outward answers short and professional
 - using compaction tools only when reusable context actually needs shortening
+
+If you update compressoor rules, rerun the installer so `~/.codex/hooks.json` still points at the current hook scripts:
+
+```bash
+python3 skills/compressoor/scripts/install_codex_compressoor.py --force
+```
+
+This also makes `compressoor` discoverable outside this repo, because Codex can resolve it from the home-local marketplace at `~/.agents/plugins/marketplace.json`.
 
 If you also want the same note in a project `AGENTS.md`:
 
@@ -67,6 +95,8 @@ If you also want the same note in a project `AGENTS.md`:
 python3 skills/compressoor/scripts/install_codex_compressoor.py --force \
   --project-agents /path/to/repo/AGENTS.md
 ```
+
+If a target `AGENTS.md` already exists, the installer appends the compressoor directive instead of replacing the file.
 
 ## Launch Codex With Compressoor
 

@@ -31,19 +31,21 @@ class PluginDefaultsTests(unittest.TestCase):
         prompts = payload["interface"]["defaultPrompt"]
         self.assertEqual(len(prompts), 1)
         prompt = prompts[0]
-        self.assertIn("Compressoor runtime policy is active", prompt)
+        self.assertIn("Compressoor mandatory session directive", prompt)
         self.assertIn("The tool loop comes first", prompt)
         self.assertIn("do not send any message before the tool call", prompt)
         self.assertIn("Do not send acknowledgements, commentary, progress updates", prompt)
+        self.assertIn("explanations of intent", prompt)
         self.assertIn("before, between, or during tool calls", prompt)
         self.assertIn("After internal thinking, move directly into the tool-calling loop", prompt)
         self.assertIn("minimal completion summary", prompt)
+        self.assertIn("Do not narrate what you are about to do", prompt)
         self.assertIn("Finish the current tool loop first", prompt)
         self.assertIn("concise professional language", prompt)
         self.assertIn("shortest useful result", prompt)
-        self.assertIn("task summary to the bare minimum", prompt)
+        self.assertIn("summary of steps taken to the bare minimum", prompt)
         self.assertIn("changed files only when they matter", prompt)
-        self.assertLess(len(prompt), 980)
+        self.assertLess(len(prompt), 1100)
 
     def test_skill_docs_require_tool_first_and_encoded_context_storage(self) -> None:
         skill_paths = [
@@ -70,17 +72,19 @@ class PluginDefaultsTests(unittest.TestCase):
         for path in AGENT_YAML_PATHS:
             with self.subTest(path=path):
                 text = path.read_text(encoding="utf-8")
-                self.assertIn("Compressoor runtime policy is active", text)
+                self.assertIn("Compressoor mandatory session directive", text)
                 self.assertIn("The tool loop comes first", text)
                 self.assertIn("do not send any message before the tool call", text)
                 self.assertIn("Do not send acknowledgements, commentary, progress updates", text)
+                self.assertIn("explanations of intent", text)
                 self.assertIn("before, between, or during tool calls", text)
                 self.assertIn("After internal thinking, move directly into the tool-calling loop", text)
                 self.assertIn("minimal completion summary", text)
+                self.assertIn("Do not narrate what you are about to do", text)
                 self.assertIn("Finish the current tool loop first", text)
                 self.assertIn("concise professional language", text)
                 self.assertIn("shortest useful result", text)
-                self.assertIn("task summary to the bare minimum", text)
+                self.assertIn("summary of steps taken to the bare minimum", text)
                 self.assertIn("allow_implicit_invocation: false", text)
 
     def test_claude_plugin_manifest_is_present_and_runtime_focused(self) -> None:
@@ -140,5 +144,10 @@ class PluginDefaultsTests(unittest.TestCase):
                 text = path.read_text(encoding="utf-8")
                 self.assertIn("Install compressoor's concise runtime policy into AGENTS and hooks files.", text)
                 self.assertIn("render_hooks_config", text)
+                self.assertIn("render_global_marketplace", text)
+                self.assertIn("write_agents_text", text)
+                self.assertIn("ensure_plugin_link", text)
+                self.assertIn("--global-marketplace", text)
+                self.assertIn("--global-plugin-dir", text)
                 self.assertIn("SessionStart", text)
                 self.assertIn("SessionResume", text)

@@ -29,7 +29,7 @@ INTERACTIVE_SUBCOMMANDS = {
     "features",
     "help",
 }
-POLICY = ROOT / "skills" / "compressoor" / "policy" / "session_policy.txt"
+POLICY = ROOT / "skills" / "compressoor" / "policy" / "session_injection.txt"
 
 
 def has_compressoor_hooks() -> bool:

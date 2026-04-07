@@ -28,12 +28,13 @@ class SessionLauncherTests(unittest.TestCase):
     def test_bootstrap_is_runtime_policy_prompt(self) -> None:
         module = load_module(LAUNCHER, "compressoor_launcher")
         prompt = module.build_bootstrap()
-        self.assertIn("Compressoor runtime policy is active", prompt)
+        self.assertIn("Compressoor mandatory session directive", prompt)
         self.assertIn("The tool loop comes first", prompt)
         self.assertIn("do not send any message before the tool call", prompt)
         self.assertIn("Do not send acknowledgements, commentary, progress updates", prompt)
+        self.assertIn("Do not narrate what you are about to do", prompt)
         self.assertIn("concise professional language", prompt)
-        self.assertLess(len(prompt), 760)
+        self.assertLess(len(prompt), 1100)
 
     def test_compose_prompt_skips_session_prompt_when_policy_exists(self) -> None:
         module = load_module(LAUNCHER, "compressoor_launcher_prompt")
@@ -51,7 +52,7 @@ class SessionLauncherTests(unittest.TestCase):
                 os.environ.pop("COMPRESSOOR_FORCE_BOOTSTRAP", None)
             else:
                 os.environ["COMPRESSOOR_FORCE_BOOTSTRAP"] = old
-        self.assertTrue(prompt.startswith("Compressoor runtime policy is active"), prompt)
+        self.assertTrue(prompt.startswith("Compressoor mandatory session directive"), prompt)
         self.assertTrue(prompt.endswith("\nFix the failing test."), prompt)
 
     def test_noninteractive_subcommands_are_rejected(self) -> None:
