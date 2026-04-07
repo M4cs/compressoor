@@ -50,16 +50,16 @@ Install the plugin from [`plugins/compressoor/.codex-plugin/plugin.json`](/Users
 Add this repository as a Claude marketplace, then install `compressoor`:
 
 ```bash
-claude plugin marketplace add max/compressoor
+claude plugin marketplace add M4cs/compressoor
 claude plugin install compressoor@compressoor
 ```
 
 The Claude plugin ships:
 
-- [`.claude-plugin/marketplace.json`](/Users/max/compressoor/.claude-plugin/marketplace.json)
-- [`.claude-plugin/plugin.json`](/Users/max/compressoor/.claude-plugin/plugin.json)
-- [`.claude/agents/compressoor.md`](/Users/max/compressoor/.claude/agents/compressoor.md)
-- [`.claude/commands/compressoor.md`](/Users/max/compressoor/.claude/commands/compressoor.md)
+- [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)
+- [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json)
+- [`.claude/agents/compressoor.md`](.claude/agents/compressoor.md)
+- [`.claude/commands/compressoor.md`](.claude/commands/compressoor.md)
 
 ### Standalone runtime policy
 
