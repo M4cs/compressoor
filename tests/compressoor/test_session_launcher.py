@@ -30,9 +30,10 @@ class SessionLauncherTests(unittest.TestCase):
         prompt = module.build_bootstrap()
         self.assertIn("Compressoor mandatory session directive", prompt)
         self.assertIn("The tool loop comes first", prompt)
-        self.assertIn("do not send any message before the tool call", prompt)
-        self.assertIn("Do not send acknowledgements, commentary, progress updates", prompt)
+        self.assertIn("send nothing before the first tool call", prompt)
+        self.assertIn("Never send an initial plan, thinking summary, reasoning preamble, intent statement", prompt)
         self.assertIn("Do not narrate what you are about to do", prompt)
+        self.assertIn("Session start and resume hooks are active to reinforce this same rule set", prompt)
         self.assertIn("concise professional language", prompt)
         self.assertLess(len(prompt), 1100)
 

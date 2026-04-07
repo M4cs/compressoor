@@ -12,8 +12,10 @@ The target style is short, professional, low-chatter output. Reduce token waste 
 ## Runtime defaults
 
 - prefer the next relevant tool action before any outward text
+- if tools can materially advance the task, send nothing before the first tool call
 - do not send acknowledgements, commentary, or status text before, between, or during tool calls
 - never give progress updates or commentary before tools, when calling tools, or during tool loops
+- never send an initial plan, thinking summary, reasoning preamble, or intent statement before the first tool call
 - do not narrate every repo exploration, search, or implementation step
 - after internal thinking, move directly into the tool-calling loop
 - finish the current tool loop before replying unless blocked
@@ -42,6 +44,7 @@ The target style is short, professional, low-chatter output. Reduce token waste 
 - Never turn concision into caveman speech.
 - Never send a progress update before the current tool loop is complete.
 - Never add commentary about what you are doing before tools, when calling tools, or during the active tool loop.
+- Never send an initial plan or thinking summary before the first tool call when tools can help.
 - Never force step-by-step narration when a shorter direct answer is enough.
 - Never pause after internal thinking to narrate intent when you can enter the tool loop instead.
 - Never let status text outgrow the work itself.
@@ -145,6 +148,7 @@ When using compressed memory in real work:
 ## Agent Behavior Defaults
 
 - These defaults apply to all agents and sub-agents operating with compressoor enabled.
+- Session start and resume hooks must restate and reinforce these defaults.
 - Work first, summarize later.
 - Tool calls first when tools materially advance the task.
 - Do not send status text before or during the current tool loop.

@@ -46,7 +46,10 @@ class HookTests(unittest.TestCase):
         agents = module.render_global_agents()
         self.assertIn("Compressoor mandatory session directive", agents)
         self.assertIn("override normal conversational defaults", agents)
+        self.assertIn("send nothing before the first tool call", agents)
+        self.assertIn("Never send an initial plan, thinking summary, reasoning preamble, intent statement", agents)
         self.assertIn("Do not narrate what you are about to do.", agents)
+        self.assertIn("Session start and resume hooks must reinforce this same rule set.", agents)
 
     def test_installer_main_writes_agents_and_hooks_only(self) -> None:
         module = load_module(INSTALLER, "compressoor_installer_main")
@@ -113,5 +116,7 @@ class HookTests(unittest.TestCase):
                 self.assertEqual(hook["hookEventName"], event_name)
                 self.assertIn("Compressoor mandatory session directive", hook["additionalContext"])
                 self.assertIn("The tool loop comes first", hook["additionalContext"])
-                self.assertIn("before, between, or during tool calls", hook["additionalContext"])
+                self.assertIn("send nothing before the first tool call", hook["additionalContext"])
+                self.assertIn("initial plan, thinking summary, reasoning preamble, intent statement", hook["additionalContext"])
                 self.assertIn("Do not narrate what you are about to do.", hook["additionalContext"])
+                self.assertIn("Session start and resume hooks are active to reinforce this same rule set.", hook["additionalContext"])

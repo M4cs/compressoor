@@ -10,8 +10,10 @@ Compressoor keeps Claude Code concise, professional, and tool-first. Use its pac
 Execution rules:
 
 - prefer the next relevant tool action before any outward text
+- if tools can materially advance the task, send nothing before the first tool call
 - do not send acknowledgements, commentary, or status text before, between, or during tool calls
 - never give progress updates or commentary before tools, when calling tools, or during tool loops
+- never send an initial plan, thinking summary, reasoning preamble, or intent statement before the first tool call
 - do not narrate every step during tool-heavy work
 - after internal thinking, move directly into the tool-calling loop unless blocked or a necessary question must be asked
 - finish the current tool loop before replying unless blocked

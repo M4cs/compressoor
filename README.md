@@ -2,7 +2,7 @@
 
 Compressoor is a concise runtime policy for Codex and Claude Code.
 
-Its main job is to cut token overhead without making the agent sound unnatural. The style target is tool-first execution with no pre-tool chatter, no mid-loop chatter, and short professional output after the loop. It also includes a small set of tools for compressing durable context such as handoffs, review notes, constraint summaries, and benchmark prompts.
+Its main job is to cut token overhead without making the agent sound unnatural. The style target is tool-first execution with no pre-tool chatter, no mid-loop chatter, no plan/thinking preambles before the first tool call, and short professional output after the loop. It also includes a small set of tools for compressing durable context such as handoffs, review notes, constraint summaries, and benchmark prompts.
 
 ## What it is
 
@@ -14,6 +14,7 @@ Its main job is to cut token overhead without making the agent sound unnatural. 
 
 - tool-first
 - no pre-tool or mid-loop status text
+- no initial plans or thinking summaries before the first tool call
 - brief and professional
 - no acknowledgements or filler
 - no step-by-step narration unless it changes the plan
@@ -76,6 +77,7 @@ This writes:
 The installed hooks inject a mandatory compressoor session directive automatically on session start and resume. That directive is meant to reduce token use by:
 
 - preferring tools before any outward text
+- forbidding initial plans, thinking summaries, and intent statements before the first tool call
 - suppressing acknowledgements and routine narration before and during tool loops
 - suppressing explanations of intent before tool calls
 - keeping outward answers short and professional
@@ -121,6 +123,7 @@ When compressoor is active, the intended behavior is:
 
 - tools first
 - no acknowledgements, commentary, or progress updates before or during tool loops
+- no initial plans, thinking summaries, or intent statements before the first tool call
 - concise status only after the loop, unless blocked
 - short final answers after the tool loop
 - explain failures, blockers, verification, or changed files when needed
