@@ -153,15 +153,6 @@ In Claude Code, the explicit entry point is `/compressoor ...`. In Codex, use th
 
 ## Benchmarks
 
-Real benchmark results, using the same public prompt-set shape as the [Caveman README](https://github.com/JuliusBrussee/caveman#benchmarks) where that comparison is useful:
-
-| Benchmark | What it measures | Cases | Result |
-|------|------|------:|------:|
-| Direct prompt compaction: `compact` | Verbose reusable context vs packed reusable context | 15 | 35.8% average token reduction |
-| Direct prompt compaction: `compact_min` | Verbose reusable context vs shortest follow-up-safe packed form | 15 | 46.0% average token reduction |
-| Live Codex run: `compact` | One live Codex A/B run on the same corpus | 1 | 0.1% total-token reduction |
-| Live Codex run: `compact_min` | One live Codex A/B run on the same corpus | 1 | 0.1% total-token reduction |
-
 Compressoor and Caveman optimize different parts of the loop, so the headline numbers are not directly comparable:
 
 | Tool | Primary target | Public benchmark signal |
