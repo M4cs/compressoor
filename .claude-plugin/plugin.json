@@ -1,7 +1,7 @@
 {
   "name": "compressoor",
-  "version": "0.1.0",
-  "description": "Concise runtime policy for Claude Code with optional context compaction for handoffs, review notes, constraints, and prompt benchmarks.",
+  "version": "0.2.0",
+  "description": "Concise runtime policy for Claude Code with optional durable-context compaction tools.",
   "author": {
     "name": "Max",
     "url": "https://github.com/M4cs/compressoor"
@@ -9,5 +9,20 @@
   "homepage": "https://github.com/M4cs/compressoor",
   "repository": "https://github.com/M4cs/compressoor",
   "license": "MIT",
-  "keywords": ["productivity", "compression", "context", "memory", "writing"]
+  "keywords": ["productivity", "compression", "context", "memory", "writing"],
+  "skills": "./skills/",
+  "agents": "./agents/",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/skills/compressoor/scripts/claude_session_hook.py"
+          }
+        ]
+      }
+    ]
+  }
 }

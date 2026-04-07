@@ -1,6 +1,6 @@
 {
   "name": "compressoor",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Concise runtime policy for Codex with optional low-loss context compression tools.",
   "author": {
     "name": "Max",
