@@ -29,21 +29,22 @@ This is closer to "do the work first, then say less and keep it normal" than to 
 If an agent or user only has the GitHub URL, this is the shortest Codex-friendly install path:
 
 ```bash
-git clone https://github.com/max/compressoor.git ~/compressoor
-python3 ~/compressoor/skills/compressoor/scripts/install_codex_compressoor.py --force
+git clone https://github.com/M4cs/compressoor.git
+cd compressoor
+python3 skills/compressoor/scripts/install_codex_compressoor.py --force
 ```
 
-If the repo is already cloned somewhere else, run the installer from that checkout instead.
+If the repo is already cloned somewhere else, run the installer from that checkout.
 
 Suggested prompt for an agent:
 
 ```text
-Clone https://github.com/max/compressoor to ~/compressoor if it is not already present, then run python3 ~/compressoor/skills/compressoor/scripts/install_codex_compressoor.py --force. After that, confirm that ~/.codex/AGENTS.md, ~/.codex/hooks.json, ~/.agents/plugins/marketplace.json, and ~/plugins/compressoor exist.
+Clone https://github.com/M4cs/compressoor if it is not already present, change into that checkout, then run python3 skills/compressoor/scripts/install_codex_compressoor.py --force. After that, confirm that ~/.codex/AGENTS.md, ~/.codex/hooks.json, ~/.agents/plugins/marketplace.json, and ~/plugins/compressoor exist.
 ```
 
 ### Codex Plugin
 
-Install the plugin from [`plugins/compressoor/.codex-plugin/plugin.json`](/Users/max/compressoor/plugins/compressoor/.codex-plugin/plugin.json).
+Install the plugin from [`plugins/compressoor/.codex-plugin/plugin.json`](plugins/compressoor/.codex-plugin/plugin.json).
 
 ### Claude Code Plugin
 
@@ -178,12 +179,12 @@ Use that one as a runtime and integration check, not as the primary savings benc
 
 ## Main Files
 
-- [`skills/compressoor/SKILL.md`](/Users/max/compressoor/skills/compressoor/SKILL.md): runtime policy and compaction behavior
-- [`skills/compressoor/scripts/compact_prompt.py`](/Users/max/compressoor/skills/compressoor/scripts/compact_prompt.py): direct prompt compactor
-- [`skills/compressoor/scripts/render_live_context.py`](/Users/max/compressoor/skills/compressoor/scripts/render_live_context.py): short live-context renderer
-- [`skills/compressoor/scripts/install_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/install_codex_compressoor.py): installer for runtime-policy notes
-- [`skills/compressoor/scripts/launch_codex_compressoor.py`](/Users/max/compressoor/skills/compressoor/scripts/launch_codex_compressoor.py): session launcher
-- [`benchmarks/benchmark_explicit_packed_context.py`](/Users/max/compressoor/benchmarks/benchmark_explicit_packed_context.py): main benchmark runner
+- [`skills/compressoor/SKILL.md`](skills/compressoor/SKILL.md): runtime policy and compaction behavior
+- [`skills/compressoor/scripts/compact_prompt.py`](skills/compressoor/scripts/compact_prompt.py): direct prompt compactor
+- [`skills/compressoor/scripts/render_live_context.py`](skills/compressoor/scripts/render_live_context.py): short live-context renderer
+- [`skills/compressoor/scripts/install_codex_compressoor.py`](skills/compressoor/scripts/install_codex_compressoor.py): installer for runtime-policy notes
+- [`skills/compressoor/scripts/launch_codex_compressoor.py`](skills/compressoor/scripts/launch_codex_compressoor.py): session launcher
+- [`benchmarks/benchmark_explicit_packed_context.py`](benchmarks/benchmark_explicit_packed_context.py): main benchmark runner
 
 ## Tests
 

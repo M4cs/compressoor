@@ -4,10 +4,10 @@
   "description": "Concise runtime policy for Claude Code with optional context compaction for handoffs, review notes, constraints, and prompt benchmarks.",
   "author": {
     "name": "Max",
-    "url": "https://github.com/max/compressoor"
+    "url": "https://github.com/M4cs/compressoor"
   },
-  "homepage": "https://github.com/max/compressoor",
-  "repository": "https://github.com/max/compressoor",
+  "homepage": "https://github.com/M4cs/compressoor",
+  "repository": "https://github.com/M4cs/compressoor",
   "license": "MIT",
   "keywords": ["productivity", "compression", "context", "memory", "writing"]
 }

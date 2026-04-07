@@ -4,7 +4,7 @@
   "description": "Concise runtime policy for Claude Code with optional durable-context compaction tools.",
   "owner": {
     "name": "Max",
-    "url": "https://github.com/max/compressoor"
+    "url": "https://github.com/M4cs/compressoor"
   },
   "plugins": [
     {
