@@ -88,10 +88,18 @@ class ExplicitContextBenchmarkTests(unittest.TestCase):
 
     def test_load_scenarios_supports_single_source_cases(self) -> None:
         module = load_module(SCRIPT, "benchmark_explicit_context_cases")
+        scenarios = module.load_scenarios(ROOT / "benchmarks" / "prompts.json", 1)
+        self.assertEqual(len(scenarios), 1)
+        self.assertEqual(scenarios[0].case_id, "react_rerender_bug")
+        self.assertEqual(scenarios[0].label, "Explain React re-render bug")
+        self.assertEqual(len(scenarios[0].turns), 2)
+
+    def test_load_scenarios_keeps_jsonl_back_compat(self) -> None:
+        module = load_module(SCRIPT, "benchmark_explicit_context_jsonl")
         scenarios = module.load_scenarios(ROOT / "benchmarks" / "caveman_style_cases.jsonl", 1)
         self.assertEqual(len(scenarios), 1)
         self.assertEqual(scenarios[0].case_id, "react_rerender_bug")
-        self.assertEqual(len(scenarios[0].turns), 2)
+        self.assertEqual(scenarios[0].label, "react_rerender_bug")
 
     def test_current_status_prefers_handoff_over_shorter_constraint_template(self) -> None:
         pack_module = load_module(ROOT / "skills" / "compressoor" / "scripts" / "pack_ccm.py", "pack_ccm_template_pick")
@@ -126,6 +134,34 @@ class ExplicitContextBenchmarkTests(unittest.TestCase):
             copied = dest / "plugins" / "compressoor" / "1.0.0"
             self.assertTrue(copied.is_symlink())
             self.assertEqual(os.readlink(copied), "/Users/max/.codex/cache/local/compressoor/1.0.0/")
+
+    def test_format_markdown_table_matches_caveman_style(self) -> None:
+        module = load_module(SCRIPT, "benchmark_explicit_context_table")
+        rows = [
+            {
+                "label": "Explain React re-render bug",
+                "verbose_tokens": 55,
+                "compact_tokens": 40,
+                "compact_saved_pct": 27.3,
+                "compact_min_tokens": 33,
+                "compact_min_saved_pct": 40.0,
+            }
+        ]
+        summary = {
+            "avg_verbose_tokens": 55.0,
+            "avg_compact_tokens": 40.0,
+            "avg_saved_percent_compact": 27.3,
+            "avg_compact_min_tokens": 33.0,
+            "avg_saved_percent_compact_min": 40.0,
+            "min_saved_percent_compact": 27.3,
+            "max_saved_percent_compact": 27.3,
+            "min_saved_percent_compact_min": 40.0,
+            "max_saved_percent_compact_min": 40.0,
+        }
+        table = module.format_markdown_table(rows, summary)
+        self.assertIn("| Task | Verbose | `compact` | Saved | `compact_min` | Saved |", table)
+        self.assertIn("| Explain React re-render bug | 55 | 40 | 27.3% | 33 | 40.0% |", table)
+        self.assertIn("*Range: `compact` 27.3% to 27.3%; `compact_min` 40.0% to 40.0%.*", table)
 
 
 if __name__ == "__main__":

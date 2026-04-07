@@ -179,13 +179,16 @@ Run the direct prompt-compaction benchmark:
 
 ```bash
 python3 benchmarks/benchmark_explicit_packed_context.py
+python3 benchmarks/benchmark_explicit_packed_context.py --dry-run
+python3 benchmarks/benchmark_explicit_packed_context.py --update-readme
 ```
 
-This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings for the compaction helpers. Current results from [`benchmarks/caveman_style_cases.jsonl`](benchmarks/caveman_style_cases.jsonl):
+This compares verbose prompt scaffolds against compacted prompt scaffolds and reports token savings for the compaction helpers. The benchmark corpus now lives in [`benchmarks/prompts.json`](benchmarks/prompts.json), using the same high-level layout as Caveman's benchmark fixture.
 
 - `compact`: full compacted form
 - `compact_min`: shorter follow-up-oriented form
 
+<!-- benchmark:direct-prompt:start -->
 | Task | Verbose | `compact` | Saved | `compact_min` | Saved |
 |------|-------:|----------:|------:|--------------:|------:|
 | Explain React re-render bug | 55 | 40 | 27.3% | 33 | 40.0% |
@@ -205,10 +208,8 @@ This compares verbose prompt scaffolds against compacted prompt scaffolds and re
 | Bun repo rules | 54 | 38 | 29.6% | 34 | 37.0% |
 | **Average** | **61.4** | **39.4** | **35.8%** | **33.1** | **46.0%** |
 
-Range:
-
-- `compact`: 27.3% to 45.5%
-- `compact_min`: 32.7% to 60.3%
+*Range: `compact` 27.3% to 45.5%; `compact_min` 32.7% to 60.3%.*
+<!-- benchmark:direct-prompt:end -->
 
 ### Live Codex Run
 
